@@ -21,8 +21,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <aside className="w-64 bg-[#2a2a2a] border-r-4 border-black p-6 flex flex-col gap-2 z-20 shadow-[inset_-4px_0_#555]">
-      <div className="mb-10 px-2">
-        <img src="/images/logo.png" alt="Logo" />
+      <div className="mb-10 px-2 flex items-center justify-center">
+        <img src="/images/logo.png" alt="Logo" className="w-12 h-12" />
+        <div className="ml-3">
+            <h1 className="text-xl text-white leading-tight">Emerald<br/>Legacy<br/>Launcher</h1>
+        </div>
       </div>
       <nav className="flex flex-col gap-3">
         <button
@@ -83,12 +86,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div
         onClick={() => {
           playSfx('click.wav');
-          openUrl("https://github.com/KayJannOnGit");
+          openUrl("https://github.com/Emerald-Legacy-Launcher");
         }}
         className={`${installingInstance ? "pt-6" : "mt-auto pt-6"} flex flex-col items-center border-t-4 border-black/30 cursor-pointer group`}
       >
         <span className="text-slate-500 text-[10px] uppercase">Developed by</span>
-        <span className="text-emerald-500 text-sm font-bold group-hover:underline">KayJann</span>
+        <span className="text-emerald-500 text-sm font-bold group-hover:underline">Emerald Team</span>
       </div>
     </aside>
   );
