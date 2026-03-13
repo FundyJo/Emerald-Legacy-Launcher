@@ -21,7 +21,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   showTeamModal,
 }) => {
   return (
-    <aside className="w-64 bg-[#2a2a2a] border-r-4 border-black p-6 flex flex-col gap-2 z-20 shadow-[inset_-4px_0_#555]">
+    <aside className="w-64 min-w-[256px] flex-shrink-0 bg-[#2a2a2a] border-r-4 border-black p-6 flex flex-col gap-2 z-20 shadow-[inset_-4px_0_#555]">
       <div className="mb-10 px-2 flex items-center justify-center">
         <img src="/images/logo.png" alt="Logo" className="w-12 h-12" />
         <div className="ml-3">

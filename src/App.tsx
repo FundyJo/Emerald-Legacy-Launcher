@@ -85,8 +85,8 @@ export default function App() {
         showTeamModal={() => setTeamModalVisible(true)}
       />
 
-      <main className="flex-1 relative h-full">
-        <div className="h-full flex flex-col items-center justify-center p-12 relative z-10">
+      <main className="flex-1 relative h-full flex items-center justify-center overflow-hidden">
+        <div className="h-full flex flex-col items-center justify-center p-6 md:p-12 relative z-10 overflow-hidden">
           {activeTab === "home" && (
             <HomeView
               username={username}
