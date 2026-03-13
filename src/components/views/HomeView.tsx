@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { GAME_VERSIONS } from '../../services/versions';
+import { SkinViewer } from '../common/SkinViewer';
 
 interface HomeViewProps {
   username: string;
@@ -11,6 +12,7 @@ interface HomeViewProps {
   fadeAndLaunch: () => void;
   playSfx: (name: string, multiplier?: number) => void;
   setActiveTab: (tab: string) => void;
+  skinBase64?: string;
 }
 
 const SPLASH_OPTIONS = [
@@ -36,7 +38,8 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
     installingInstance, 
     fadeAndLaunch, 
     playSfx, 
-    setActiveTab 
+    setActiveTab,
+    skinBase64 
   } = props;
 
   const name = username.length > 20 ? `${username.slice(0, 16)}...` : username;
@@ -79,7 +82,17 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
         </div>
       </div>
 
-      <div className="w-[600px] p-10 bg-black/60 backdrop-blur-md border-4 border-stone-800 shadow-2xl relative z-10">
+      <div className="flex items-center justify-center gap-12 relative z-10 w-full max-w-6xl">
+        <div className="hidden lg:flex flex-col items-center animate-in slide-in-from-left duration-700">
+           <div className="w-[300px] h-[450px] relative">
+              <SkinViewer skinUrl={skinBase64 || null} />
+           </div>
+           <div className="bg-black/40 px-6 py-2 border-2 border-white/10 backdrop-blur-sm mt-4">
+              <span className="text-2xl legacy-text-shadow opacity-80">{name}</span>
+           </div>
+        </div>
+
+        <div className="w-[600px] p-10 bg-black/60 backdrop-blur-md border-4 border-stone-800 shadow-2xl">
         {hasGame ? (
           <div className="flex flex-col gap-8">
             <select
@@ -121,5 +134,6 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
         )}
       </div>
     </div>
+  </div>
   );
 };
