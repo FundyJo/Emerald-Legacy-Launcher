@@ -143,8 +143,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             About the project
           </h3>
           <p className="text-xl text-white leading-relaxed mb-6 opacity-90">
-            I'm <span className="text-emerald-400">KayJann</span>, and I absolutely love this project! It's my very first one,
-            and my goal is to create a central hub for the LCE community to bring us all together.
+            This project is proudly maintained by the{' '}
+            <span className="text-emerald-400">Emerald Team</span>, with{' '}
+            <span className="text-emerald-400">KayJann</span> as the owner.
+            Our goal is to create a central hub for the LCE community to bring us all together.
           </p>
           <h3 className="text-sm text-slate-500 mb-4 uppercase tracking-widest">Social Links</h3>
           <div className="flex gap-6">
@@ -156,7 +158,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <Icons.Discord />
             </button>
             <button
-              onClick={() => openUrl("https://github.com/KayJannOnGit")}
+              onClick={() => openUrl("https://github.com/Emerald-Legacy-Launcher/Emerald-Legacy-Launcher")}
               className="social-btn btn-github"
               title="GitHub"
             >
