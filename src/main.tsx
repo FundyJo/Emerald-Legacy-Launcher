@@ -1,17 +1,30 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
-import 'tauri-plugin-gamepad-api';
-import App from "./App";
-import './index.css';
+import { HashRouter, Route, Routes } from "react-router-dom";
+import "tauri-plugin-gamepad-api";
+import "@/css/index.css";
 
-const rootElement = document.getElementById("root");
+// Pages
+import App from "@/pages/App";
 
-if (rootElement) {
-  ReactDOM.createRoot(rootElement).render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
+
+const Root = () => {
+  const navEntry = (performance.getEntriesByType("navigation") as PerformanceNavigationTiming[])[0];
+  if (navEntry?.type === "reload") window.location.href = "/";
+
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<App />} />
+      </Routes>
+    </>
   );
-} else {
-  console.error("Fatal Error: no `root` element found in index.html!");
-}
+};
+
+document.addEventListener("contextmenu", (e) => e.preventDefault());
+
+root.render(
+  <HashRouter>
+    <Root />
+  </HashRouter>
+);

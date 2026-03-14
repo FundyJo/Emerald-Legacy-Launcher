@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import * as THREE from 'three';
+import * as THREE from "three";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { PanoramaBackground } from "../common/PanoramaBackground";
 
@@ -16,10 +16,10 @@ interface LegacyHomeViewProps {
 }
 
 const MENU_ITEMS = [
-  { id: 'play', label: 'Play Game' },
-  { id: 'versions', label: 'Versions' },
-  { id: 'settings', label: 'Settings' },
-  { id: 'exit', label: 'Exit Launcher' },
+  { id: "play", label: "Play Game" },
+  { id: "versions", label: "Versions" },
+  { id: "settings", label: "Settings" },
+  { id: "exit", label: "Exit Launcher" },
 ];
 
 function SkinViewer({ skinUrl }: { skinUrl: string | null }) {
@@ -35,7 +35,7 @@ function SkinViewer({ skinUrl }: { skinUrl: string | null }) {
     const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
     renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
-    mountRef.current.innerHTML = '';
+    mountRef.current.innerHTML = "";
     mountRef.current.appendChild(renderer.domElement);
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.9));
@@ -110,9 +110,9 @@ function SkinViewer({ skinUrl }: { skinUrl: string | null }) {
       }
     };
 
-    renderer.domElement.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    renderer.domElement.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
 
     let animationId: number;
     const animate = () => {
@@ -124,8 +124,8 @@ function SkinViewer({ skinUrl }: { skinUrl: string | null }) {
     return () => {
       cancelAnimationFrame(animationId);
       renderer.dispose();
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
     };
   }, [skinUrl]);
 
@@ -161,18 +161,18 @@ export const LegacyHomeView: React.FC<LegacyHomeViewProps> = ({
   };
 
   const handleAction = async (id: string) => {
-    if (id === 'play') {
+    if (id === "play") {
       if (!isInstalled) {
-        playSfx('error');
+        playSfx("error");
         return;
       }
-      playSfx('click');
+      playSfx("click");
       fadeAndLaunch();
-    } else if (id === 'versions' || id === 'settings') {
-      playSfx('click');
+    } else if (id === "versions" || id === "settings") {
+      playSfx("click");
       setActiveTab(id);
-    } else if (id === 'exit') {
-      playSfx('click');
+    } else if (id === "exit") {
+      playSfx("click");
       try {
         const window = await getCurrentWindow();
         window.close();
@@ -190,7 +190,7 @@ export const LegacyHomeView: React.FC<LegacyHomeViewProps> = ({
           src="/images/MenuTitle.png"
           alt="Minecraft"
           className="w-full max-w-[600px] drop-shadow-2xl"
-          style={{ filter: 'drop-shadow(0px 8px 8px rgba(0,0,0,0.8))' }}
+          style={{ filter: "drop-shadow(0px 8px 8px rgba(0,0,0,0.8))" }}
         />
       </div>
 
@@ -200,7 +200,7 @@ export const LegacyHomeView: React.FC<LegacyHomeViewProps> = ({
           <div className="relative w-full h-[520px] flex flex-col items-center">
             {/* Nametag positioned absolutely above the player head - Moved 5px up */}
             <div className="absolute top-[95px] z-20 bg-black/50 px-6 py-2 backdrop-blur-sm flex items-center justify-center border border-white/10 shadow-xl">
-              <span className="text-2xl text-white legacy-text-shadow tracking-widest leading-none" style={{ fontFamily: 'Minecraft, sans-serif' }}>
+              <span className="text-2xl text-white legacy-text-shadow tracking-widest leading-none" style={{ fontFamily: "Minecraft, sans-serif" }}>
                 {username || "Player"}
               </span>
             </div>
@@ -211,11 +211,11 @@ export const LegacyHomeView: React.FC<LegacyHomeViewProps> = ({
           </div>
           <input type="file" ref={fileInputRef} onChange={handleSkinUpload} accept="image/png" className="hidden" />
           <button
-            onClick={() => { playSfx('click'); fileInputRef.current?.click(); }}
-            onMouseEnter={() => playSfx('hover')}
+            onClick={() => { playSfx("click"); fileInputRef.current?.click(); }}
+            onMouseEnter={() => playSfx("hover")}
             className="group relative flex items-center justify-center w-[250px] h-[48px] transition-transform duration-100 bg-[url('/images/button.png')] hover:bg-[url('/images/button_highlighted.png')] hover:scale-105 shadow-2xl bg-[length:100%_100%] bg-center bg-no-repeat"
           >
-            <span className="text-[20px] tracking-wider text-[#d0d0d0] group-hover:text-white legacy-text-shadow" style={{ fontFamily: 'Minecraft, sans-serif' }}>
+            <span className="text-[20px] tracking-wider text-[#d0d0d0] group-hover:text-white legacy-text-shadow" style={{ fontFamily: "Minecraft, sans-serif" }}>
               Change Skin
             </span>
           </button>
@@ -229,7 +229,7 @@ export const LegacyHomeView: React.FC<LegacyHomeViewProps> = ({
               <button
                 key={item.id}
                 onMouseEnter={() => {
-                  if (selectedIndex !== index) playSfx('hover');
+                  if (selectedIndex !== index) playSfx("hover");
                   setSelectedIndex(index);
                 }}
                 onClick={() => handleAction(item.id)}
@@ -239,17 +239,17 @@ export const LegacyHomeView: React.FC<LegacyHomeViewProps> = ({
                   } bg-[length:100%_100%] bg-center bg-no-repeat`}
               >
                 <span
-                  className={`text-[24px] tracking-wider legacy-text-shadow ${isSelected ? 'text-white' : 'text-[#d0d0d0]'}`}
-                  style={{ fontFamily: 'Minecraft, sans-serif' }}
+                  className={`text-[24px] tracking-wider legacy-text-shadow ${isSelected ? "text-white" : "text-[#d0d0d0]"}`}
+                  style={{ fontFamily: "Minecraft, sans-serif" }}
                 >
-                  {isRunning && item.id === 'play'
-                    ? 'Launching...'
-                    : !isInstalled && item.id === 'play'
-                      ? 'Not Installed'
+                  {isRunning && item.id === "play"
+                    ? "Launching..."
+                    : !isInstalled && item.id === "play"
+                      ? "Not Installed"
                       : item.label}
                 </span>
 
-                {installingInstance && item.id === 'play' && (
+                {installingInstance && item.id === "play" && (
                   <div className="absolute top-full mt-3 w-[80%] max-w-[250px]">
                     <div className="mc-progress-container !h-3 !border-2">
                       <div className="mc-progress-bar !h-1.5" style={{ width: `${installingInstance.progress}%` }} />

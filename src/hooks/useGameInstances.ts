@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { TauriService } from '../services/tauri';
-import { InstalledStatus, McNotification } from '../types';
-import { GAME_VERSIONS } from '../services/versions';
+
+// Services
+import { TauriService } from "@/services/tauri";
+import { GAME_VERSIONS } from "@/services/versions";
+
+// Types
+import { InstalledStatus, McNotification } from "@/types/index";
 
 export const useGameInstances = (
   playSfx: (name: string, multiplier?: number) => void,
@@ -31,7 +35,7 @@ export const useGameInstances = (
     try {
       await TauriService.downloadAndInstall(url, id);
       setMcNotif({ t: "Success!", m: "Ready to play." });
-      playSfx('orb.ogg');
+      playSfx("orb.ogg");
       setTimeout(() => setMcNotif(null), 4000);
       updateAllStatus();
     } catch (e) {

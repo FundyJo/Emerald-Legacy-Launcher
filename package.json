@@ -13,8 +13,11 @@
     "@tailwindcss/vite": "^4.2.1",
     "@tauri-apps/api": "^2.10.1",
     "@tauri-apps/plugin-opener": "^2.5.3",
+    "framer-motion": "^12.36.0",
+    "path": "^0.12.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-router-dom": "^7.13.1",
     "tauri-plugin-gamepad-api": "^0.0.5",
     "three": "^0.183.2"
   },

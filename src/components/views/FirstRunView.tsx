@@ -1,6 +1,10 @@
-import React from 'react';
-import { TauriService } from '../../services/tauri';
-import { Runner } from '../../types';
+import React from "react";
+
+// Services
+import { TauriService } from "@/services/tauri";
+
+// Types
+import { Runner } from "@/types";
 
 interface FirstRunViewProps {
   username: string;
@@ -43,7 +47,7 @@ export const FirstRunView: React.FC<FirstRunViewProps> = ({
         <button
           onClick={() => {
             ensureAudio();
-            playSfx('click.wav');
+            playSfx("click.wav");
             TauriService.saveConfig({
               username,
               linuxRunner: isLinux ? selectedRunner : undefined,

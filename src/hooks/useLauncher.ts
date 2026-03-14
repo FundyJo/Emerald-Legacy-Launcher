@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { TauriService } from '../services/tauri';
+import { useState } from "react";
+
+// Services
+import { TauriService } from "@/services/tauri";
 
 export const useLauncher = (
   selectedInstance: string,
@@ -12,7 +14,7 @@ export const useLauncher = (
   const [isRunning, setIsRunning] = useState(false);
 
   const fadeAndLaunch = async () => {
-    playSfx('levelup.ogg', 0.4);
+    playSfx("levelup.ogg", 0.4);
     setIsRunning(true);
     if (musicRef.current && !isMuted) {
       const startVol = musicRef.current.volume;

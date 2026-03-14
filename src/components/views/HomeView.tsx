@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
-import { GAME_VERSIONS } from '../../services/versions';
-import { SkinViewer } from '../common/SkinViewer';
+import React, { useState } from "react";
+
+// Services
+import { GAME_VERSIONS } from "@/services/versions";
+
+// Components
+import { SkinViewer } from "@/components/common/SkinViewer";
 
 interface HomeViewProps {
   username: string;
@@ -48,7 +52,7 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
   const [splash, setSplash] = useState(`Welcome, ${name}!`);
 
   const handleSplashUpdate = () => {
-    playSfx('orb.ogg');
+    playSfx("orb.ogg");
     const next = SPLASH_OPTIONS.filter(s => s !== splash);
     setSplash(next[Math.floor(Math.random() * next.length)]);
   };
@@ -73,9 +77,9 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
               onClick={handleSplashUpdate}
               className="splash-text text-3xl cursor-pointer hover:brightness-110 active:scale-95 transition-all"
               style={{
-                pointerEvents: 'auto',
-                whiteSpace: 'nowrap',
-                transformOrigin: 'center'
+                pointerEvents: "auto",
+                whiteSpace: "nowrap",
+                transformOrigin: "center"
               }}
             >
               {splash}
@@ -96,11 +100,11 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
             </div>
 
             <button
-              onClick={() => { playSfx('click.wav'); setActiveTab("settings"); }}
-              onMouseEnter={() => playSfx('hover')}
+              onClick={() => { playSfx("click.wav"); setActiveTab("settings"); }}
+              onMouseEnter={() => playSfx("hover")}
               className="mt-6 group relative flex items-center justify-center w-[200px] h-[42px] transition-transform duration-100 bg-[url('/images/button.png')] hover:bg-[url('/images/button_highlighted.png')] hover:scale-105 shadow-2xl bg-[length:100%_100%] bg-center bg-no-repeat z-30"
             >
-              <span className="text-[18px] tracking-wider text-[#d0d0d0] group-hover:text-white legacy-text-shadow" style={{ fontFamily: 'Minecraft, sans-serif' }}>
+              <span className="text-[18px] tracking-wider text-[#d0d0d0] group-hover:text-white legacy-text-shadow" style={{ fontFamily: "Minecraft, sans-serif" }}>
                 Change Skin
               </span>
             </button>
@@ -113,7 +117,7 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
               <select
                 value={selectedInstance}
                 onChange={(e) => {
-                  playSfx('click.wav');
+                  playSfx("click.wav");
                   setSelectedInstance(e.target.value);
                 }}
                 className="w-full bg-[#bebebe] border-4 border-black p-3 text-2xl text-[#3e3e3e] shadow-[inset_4px_4px_#fff,inset_-4px_-4px_#555] outline-none cursor-pointer"
@@ -126,7 +130,7 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
               <button
                 onClick={fadeAndLaunch}
                 disabled={isLocked}
-                onMouseEnter={() => playSfx('hover')}
+                onMouseEnter={() => playSfx("hover")}
                 className={`h-20 text-4xl text-[#3e3e3e] hover:text-white legacy-text-shadow transition-all bg-[length:100%_100%] bg-no-repeat flex items-center justify-center gap-4 ${isLocked
                   ? "bg-[url('/images/button.png')] opacity-50 grayscale cursor-default"
                   : "bg-[url('/images/button.png')] hover:bg-[url('/images/button_highlighted.png')] hover:scale-[1.02] active:scale-95 cursor-pointer"
@@ -142,7 +146,7 @@ export const HomeView: React.FC<HomeViewProps> = (props) => {
             <div className="flex flex-col items-center gap-6">
               <h2 className="text-3xl text-red-500 legacy-text-shadow uppercase">Missing Game Files</h2>
               <button
-                onClick={() => { playSfx('click.wav'); setActiveTab("versions"); }}
+                onClick={() => { playSfx("click.wav"); setActiveTab("versions"); }}
                 className="w-3/4 h-16 text-2xl bg-[url('/images/button.png')] bg-[length:100%_100%] hover:bg-[url('/images/button_highlighted.png')] active:scale-95 transition-all text-[#3e3e3e] hover:text-white legacy-text-shadow"
               >
                 Check Versions

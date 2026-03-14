@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
-import { AppConfig, Runner } from "../types";
+
+// Types
+import { AppConfig, Runner } from "@/types/index";
 
 export const TauriService = {
   loadConfig: () => invoke<AppConfig>("load_config"),

@@ -1,5 +1,7 @@
-import React from 'react';
-import { ReinstallModalData } from '../../types';
+import React from "react";
+
+// Types
+import { ReinstallModalData } from "@/types/index";
 
 interface ReinstallModalProps {
   data: ReinstallModalData;
@@ -26,7 +28,7 @@ export const ReinstallModal: React.FC<ReinstallModalProps> = ({
         <div className="flex gap-6">
           <button
             onClick={() => {
-              playSfx('back.ogg');
+              playSfx("back.ogg");
               onCancel();
             }}
             className="legacy-btn px-8 py-4 text-3xl w-1/2"
@@ -35,7 +37,7 @@ export const ReinstallModal: React.FC<ReinstallModalProps> = ({
           </button>
           <button
             onClick={() => {
-              playSfx('click.wav');
+              playSfx("click.wav");
               onConfirm(data.id, data.url);
             }}
             className="legacy-btn px-8 py-4 text-3xl w-1/2 confirm-red-btn"

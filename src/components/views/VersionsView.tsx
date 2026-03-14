@@ -1,6 +1,11 @@
-import React from 'react';
-import { TauriService } from '../../services/tauri';
-import { ReinstallModalData } from '../../types';
+import React from "react";
+
+// Services
+import { TauriService } from "@/services/tauri";
+import { GAME_VERSIONS } from "@/services/versions";
+
+// Types
+import { ReinstallModalData } from "@/types";
 
 interface VersionsViewProps {
   installedStatus: Record<string, boolean>;
@@ -9,8 +14,6 @@ interface VersionsViewProps {
   setReinstallModal: (data: ReinstallModalData | null) => void;
   playSfx: (name: string, multiplier?: number) => void;
 }
-
-import { GAME_VERSIONS } from '../../services/versions';
 
 export const VersionsView: React.FC<VersionsViewProps> = ({
   installedStatus,
@@ -47,7 +50,7 @@ export const VersionsView: React.FC<VersionsViewProps> = ({
                 <>
                   <button
                     onClick={() => {
-                      playSfx('pop.wav');
+                      playSfx("pop.wav");
                       TauriService.openInstanceFolder(v.id);
                     }}
                     className="legacy-btn px-4 py-2 text-xl"
@@ -56,7 +59,7 @@ export const VersionsView: React.FC<VersionsViewProps> = ({
                   </button>
                   <button
                     onClick={() => {
-                      playSfx('click.wav');
+                      playSfx("click.wav");
                       setReinstallModal({ id: v.id, url: v.url });
                     }}
                     disabled={!!installingInstance}
@@ -68,7 +71,7 @@ export const VersionsView: React.FC<VersionsViewProps> = ({
               ) : (
                 <button
                   onClick={() => {
-                    playSfx('click.wav');
+                    playSfx("click.wav");
                     executeInstall(v.id, v.url);
                   }}
                   disabled={!!installingInstance}

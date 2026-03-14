@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 const SGA_CHARS = "abcdefghijklmnopqrstuvwxyz".split("");
 
@@ -38,8 +38,8 @@ export const ClickParticles: React.FC = () => {
       }, 1000);
     };
 
-    window.addEventListener('mousedown', handleClick);
-    return () => window.removeEventListener('mousedown', handleClick);
+    window.addEventListener("mousedown", handleClick);
+    return () => window.removeEventListener("mousedown", handleClick);
   }, []);
 
   return (
@@ -52,11 +52,11 @@ export const ClickParticles: React.FC = () => {
           style={{
             left: p.x,
             top: p.y,
-            width: '24px',
-            height: '24px',
-            '--vX': `${p.vX}px`,
-            '--vY': `${p.vY}px`,
-            '--rot': `${p.rotation}deg`,
+            width: "24px",
+            height: "24px",
+            "--vX": `${p.vX}px`,
+            "--vY": `${p.vY}px`,
+            "--rot": `${p.rotation}deg`,
           } as React.CSSProperties}
           alt="magic-particle"
         />

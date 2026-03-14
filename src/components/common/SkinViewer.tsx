@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import * as THREE from 'three';
+import * as THREE from "three";
 
 interface SkinViewerProps {
   skinUrl: string | null;
@@ -21,7 +21,7 @@ export function SkinViewer({ skinUrl }: SkinViewerProps) {
     const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio);
-    mountRef.current.innerHTML = '';
+    mountRef.current.innerHTML = "";
     mountRef.current.appendChild(renderer.domElement);
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.9));
@@ -96,9 +96,9 @@ export function SkinViewer({ skinUrl }: SkinViewerProps) {
       }
     };
 
-    renderer.domElement.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    renderer.domElement.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
 
     let animationId: number;
     const animate = () => {
@@ -110,8 +110,8 @@ export function SkinViewer({ skinUrl }: SkinViewerProps) {
     return () => {
       cancelAnimationFrame(animationId);
       renderer.dispose();
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
     };
   }, [skinUrl]);
 

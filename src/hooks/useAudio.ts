@@ -1,5 +1,7 @@
-import { useRef, useEffect } from 'react';
-import { playSfx as playSfxService, ensureAudio } from '../services/audio';
+import { useRef, useEffect } from "react";
+
+// Services
+import { playSfx as playSfxService, ensureAudio } from "@/services/audio";
 
 export const useAudio = (musicVol: number, sfxVol: number, isMuted: boolean) => {
   const musicRef = useRef<HTMLAudioElement | null>(null);

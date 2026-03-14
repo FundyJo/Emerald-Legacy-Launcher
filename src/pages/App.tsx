@@ -1,23 +1,31 @@
 import { useState, useEffect } from "react";
-import { useAudio } from "./hooks/useAudio";
-import { useSettings } from "./hooks/useSettings";
-import { useGameInstances } from "./hooks/useGameInstances";
-import { useLauncher } from "./hooks/useLauncher";
-import { useGamepad } from "./hooks/useGamepad";
-import { TauriService } from "./services/tauri";
-import { AppConfig, Runner, ReinstallModalData, McNotification } from "./types";
-import { Sidebar } from "./components/layout/Sidebar";
-import { HomeView } from "./components/views/HomeView";
-import { VersionsView } from "./components/views/VersionsView";
-import { SettingsView } from "./components/views/SettingsView";
-import { FirstRunView } from "./components/views/FirstRunView";
-import { ReinstallModal } from "./components/modals/ReinstallModal";
-import { TeamModal } from "./components/modals/TeamModal";
-import { Notification } from "./components/common/Notification";
-import { PanoramaBackground } from "./components/common/PanoramaBackground";
-import { ClickParticles } from "./components/common/ClickParticles";
-import { listen } from '@tauri-apps/api/event';
-import "./index.css";
+import "@/css/index.css";
+
+// Hooks
+import { useAudio } from "@/hooks/useAudio";
+import { useSettings } from "@/hooks/useSettings";
+import { useGameInstances } from "@/hooks/useGameInstances";
+import { useLauncher } from "@/hooks/useLauncher";
+import { useGamepad } from "@/hooks/useGamepad";
+
+// Services
+import { TauriService } from "@/services/tauri";
+
+// Types
+import { AppConfig, Runner, ReinstallModalData, McNotification } from "@/types/index";
+
+// Components
+import { Sidebar } from "@/components/layout/Sidebar";
+import { HomeView } from "@/components/views/HomeView";
+import { VersionsView } from "@/components/views/VersionsView";
+import { SettingsView } from "@/components/views/SettingsView";
+import { FirstRunView } from "@/components/views/FirstRunView";
+import { ReinstallModal } from "@/components/modals/ReinstallModal";
+import { TeamModal } from "@/components/modals/TeamModal";
+import { Notification } from "@/components/common/Notification";
+import { PanoramaBackground } from "@/components/common/PanoramaBackground";
+import { ClickParticles } from "@/components/common/ClickParticles";
+// import { listen } from '@tauri-apps/api/event';
 
 export default function App() {
   const [username, setUsername] = useState("");

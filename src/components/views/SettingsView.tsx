@@ -1,9 +1,17 @@
-import React, { useRef } from 'react';
-import { Icons } from '../Icons';
-import { TauriService } from '../../services/tauri';
-import { Runner } from '../../types';
+import React, { useRef } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { SkinViewer } from '../common/SkinViewer';
+
+// Icons
+import { Icons } from "@/components/Icons";
+
+// Services
+import { TauriService } from "@/services/tauri";
+
+// Types
+import { Runner } from "@/types";
+
+// Components
+import { SkinViewer } from "@/components/common/SkinViewer";
 
 interface SettingsViewProps {
   username: string;
@@ -60,13 +68,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       const url = event.target?.result as string;
       const img = new Image();
       img.onload = () => {
-        const cvs = document.createElement('canvas');
+        const cvs = document.createElement("canvas");
         cvs.width = 64;
         cvs.height = 32;
-        const ctx = cvs.getContext('2d');
+        const ctx = cvs.getContext("2d");
         if (ctx) {
           ctx.drawImage(img, 0, 0, 64, 32, 0, 0, 64, 32);
-          const base64 = cvs.toDataURL('image/png');
+          const base64 = cvs.toDataURL("image/png");
           setSkinBase64(base64);
           TauriService.saveConfig({
             username,
@@ -94,7 +102,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             />
             <button
               onClick={() => {
-                playSfx('wood click.wav');
+                playSfx("wood click.wav");
                 TauriService.saveConfig({
                   username,
                   linuxRunner: selectedRunner || undefined,
@@ -118,7 +126,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 value={selectedRunner}
                 onChange={(e) => {
                   const newRunner = e.target.value;
-                  playSfx('click.wav');
+                  playSfx("click.wav");
                   setSelectedRunner(newRunner);
                   TauriService.saveConfig({
                     username,
@@ -181,7 +189,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <button
             onClick={() => {
               setIsMuted(!isMuted);
-              playSfx('pop.wav');
+              playSfx("pop.wav");
             }}
             className="legacy-btn mt-4 py-2"
           >
@@ -210,7 +218,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               />
               <div className="flex gap-4">
                 <button
-                  onClick={() => { playSfx('wood click.wav'); fileInputRef.current?.click(); }}
+                  onClick={() => { playSfx("wood click.wav"); fileInputRef.current?.click(); }}
                   className="legacy-btn flex-1 py-3 text-xl"
                 >
                   UPLOAD SKIN
@@ -218,7 +226,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 {skinBase64 && (
                   <button
                     onClick={() => {
-                      playSfx('pop.wav');
+                      playSfx("pop.wav");
                       setSkinBase64("");
                       TauriService.saveConfig({
                         username,
@@ -246,11 +254,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <button
                 onClick={() => {
                   setShowClickParticles(!showClickParticles);
-                  playSfx('wood click.wav');
+                  playSfx("wood click.wav");
                 }}
-                className={`legacy-btn px-6 py-2 min-w-[120px] ${!showClickParticles ? 'opacity-50' : ''}`}
+                className={`legacy-btn px-6 py-2 min-w-[120px] ${!showClickParticles ? "opacity-50" : ""}`}
               >
-                {showClickParticles ? 'ENABLED' : 'DISABLED'}
+                {showClickParticles ? "ENABLED" : "DISABLED"}
               </button>
             </div>
             <div className="flex items-center justify-between">
@@ -258,11 +266,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <button
                 onClick={() => {
                   setShowPanorama(!showPanorama);
-                  playSfx('wood click.wav');
+                  playSfx("wood click.wav");
                 }}
-                className={`legacy-btn px-6 py-2 min-w-[120px] ${!showPanorama ? 'opacity-50' : ''}`}
+                className={`legacy-btn px-6 py-2 min-w-[120px] ${!showPanorama ? "opacity-50" : ""}`}
               >
-                {showPanorama ? 'ENABLED' : 'DISABLED'}
+                {showPanorama ? "ENABLED" : "DISABLED"}
               </button>
             </div>
             <p className="text-sm text-slate-400 italic">
@@ -276,16 +284,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             About the project
           </h3>
           <p className="text-xl text-white leading-relaxed mb-6 opacity-90">
-            This project is proudly maintained by the{' '}
+            This project is proudly maintained by the{" "}
             <span
               className="text-emerald-400 cursor-pointer hover:underline"
               onClick={() => {
-                playSfx('click.wav');
+                playSfx("click.wav");
                 showTeamModal();
               }}
             >
               Emerald Team
-            </span>, with{' '}
+            </span>, with{" "}
             <span className="text-emerald-400">KayJann</span> as the owner.
             Our goal is to create a central hub for the LCE community to bring us all together.
           </p>

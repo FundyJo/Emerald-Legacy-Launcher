@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 
 interface TeamModalProps {
@@ -31,7 +31,7 @@ export const TeamModal: React.FC<TeamModalProps> = ({
             <div
               key={dev.name}
               onClick={() => {
-                playSfx('click.wav');
+                playSfx("click.wav");
                 openUrl(dev.url);
               }}
               className="flex items-center justify-between p-3 bg-black/40 border-2 border-slate-700 hover:border-emerald-500 cursor-pointer transition-colors group"
@@ -44,7 +44,7 @@ export const TeamModal: React.FC<TeamModalProps> = ({
 
         <button
           onClick={() => {
-            playSfx('back.ogg');
+            playSfx("back.ogg");
             onClose();
           }}
           className="legacy-btn px-8 py-3 text-2xl w-full"
