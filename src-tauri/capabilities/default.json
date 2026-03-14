@@ -9,6 +9,8 @@
     "core:default",
     "opener:default",
     "gamepad:default",
+    "drpc:allow-is-running",
+    "drpc:default",
     "core:event:allow-listen",
     "core:app:default",
     {

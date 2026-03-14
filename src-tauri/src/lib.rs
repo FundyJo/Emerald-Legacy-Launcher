@@ -270,6 +270,7 @@ pub fn run() {
         .manage(DownloadState { token: Arc::new(Mutex::new(None)) })
         .plugin(tauri_plugin_gamepad::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_drpc::init())
         .invoke_handler(tauri::generate_handler![launch_game, check_game_installed, save_config, load_config, download_and_install, open_instance_folder, cancel_download, get_available_runners])
         .run(tauri::generate_context!())
         .expect("error");
