@@ -1,15 +1,12 @@
 import { setActivity, start } from "tauri-plugin-drpc";
-import { Activity, ActivityType } from "tauri-plugin-drpc/activity";
-
+import { ActivityType } from "tauri-plugin-drpc/activity";
 class RPC {
   private startTime: number = Date.now();
   private initializationPromise: Promise<void> | null = null;
   private initialized: boolean = false;
-
   public async StartRPC() {
     if (this.initialized) return;
     if (this.initializationPromise) return this.initializationPromise;
-
     this.initializationPromise = (async () => {
       try {
         await start("1482504445152460871");
