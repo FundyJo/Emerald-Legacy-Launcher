@@ -23,7 +23,7 @@ export const ReinstallModal: React.FC<ReinstallModalProps> = ({
           Warning
         </h3>
         <p className="text-2xl mb-10 leading-relaxed text-white">
-          Reinstalling will delete all data. Continue?
+          Updating will preserve your user data and Windows64 folder, but replace other files. Continue?
         </p>
         <div className="flex gap-6">
           <button

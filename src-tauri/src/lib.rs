@@ -529,6 +529,20 @@ async fn setup_macos_runtime(window: tauri::Window, app: AppHandle) -> Result<()
     }
 }
 
+fn copy_dir_all(src: impl AsRef<std::path::Path>, dst: impl AsRef<std::path::Path>) -> std::io::Result<()> {
+    fs::create_dir_all(&dst)?;
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let ty = entry.file_type()?;
+        if ty.is_dir() {
+            copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
+        } else {
+            fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
+        }
+    }
+    Ok(())
+}
+
 #[tauri::command]
 #[allow(non_snake_case)]
 async fn download_and_install(app: AppHandle, state: State<'_, DownloadState>, url: String, instanceId: String) -> Result<String, String> {
@@ -538,8 +552,59 @@ async fn download_and_install(app: AppHandle, state: State<'_, DownloadState>, u
     let child_token = token.clone();
     { *state.token.lock().await = Some(token); }
 
-    if instance_dir.exists() { let _ = fs::remove_dir_all(&instance_dir); }
-    fs::create_dir_all(&instance_dir).map_err(|e| e.to_string())?;
+    if !instance_dir.exists() {
+        fs::create_dir_all(&instance_dir).map_err(|e| e.to_string())?;
+    } else {
+        if let Ok(entries) = fs::read_dir(&instance_dir) {
+            for entry in entries.flatten() {
+                let file_name = entry.file_name();
+                let name_str = file_name.to_string_lossy();
+                
+                let keep_list = ["Windows64", "uid.dat", "username.txt", "settings.dat", "servers.dat", "servers.txt", "server.properties", "Common", "options.txt"];
+                if !keep_list.contains(&name_str.as_ref()) {
+                    let path = entry.path();
+                    if path.is_dir() {
+                        let _ = fs::remove_dir_all(path);
+                    } else {
+                        let _ = fs::remove_file(path);
+                    }
+                } else if name_str == "Common" {
+                    let common_dir = entry.path();
+                    if let Ok(common_entries) = fs::read_dir(&common_dir) {
+                        for c_entry in common_entries.flatten() {
+                            let c_name = c_entry.file_name();
+                            if c_name.to_string_lossy() != "res" {
+                                let c_path = c_entry.path();
+                                if c_path.is_dir() { let _ = fs::remove_dir_all(c_path); } else { let _ = fs::remove_file(c_path); }
+                            } else {
+                                let res_dir = c_entry.path();
+                                if let Ok(res_entries) = fs::read_dir(&res_dir) {
+                                    for r_entry in res_entries.flatten() {
+                                        let r_name = r_entry.file_name();
+                                        if r_name.to_string_lossy() != "mob" {
+                                            let r_path = r_entry.path();
+                                            if r_path.is_dir() { let _ = fs::remove_dir_all(r_path); } else { let _ = fs::remove_file(r_path); }
+                                        } else {
+                                            let mob_dir = r_entry.path();
+                                            if let Ok(mob_entries) = fs::read_dir(&mob_dir) {
+                                                for m_entry in mob_entries.flatten() {
+                                                    let m_name = m_entry.file_name();
+                                                    if m_name.to_string_lossy() != "char.png" {
+                                                        let m_path = m_entry.path();
+                                                        if m_path.is_dir() { let _ = fs::remove_dir_all(m_path); } else { let _ = fs::remove_file(m_path); }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     let zip_path = root.join(format!("temp_{}.zip", instanceId));
     let response = reqwest::get(&url).await.map_err(|e| e.to_string())?;
@@ -569,7 +634,7 @@ async fn download_and_install(app: AppHandle, state: State<'_, DownloadState>, u
 
     #[cfg(target_os = "linux")]
     let status = Command::new("unzip")
-        .args(["-q", zip_path.to_str().unwrap(), "-d", instance_dir.to_str().unwrap()])
+        .args(["-o", "-q", zip_path.to_str().unwrap(), "-d", instance_dir.to_str().unwrap()])
         .status()
         .map_err(|e| e.to_string())?;
 
@@ -586,19 +651,31 @@ async fn download_and_install(app: AppHandle, state: State<'_, DownloadState>, u
     }
 
     if let Ok(entries) = fs::read_dir(&instance_dir) {
-        let entries_vec: Vec<_> = entries.flatten().collect();
-
-        if entries_vec.len() == 1 && entries_vec[0].path().is_dir() {
-            let inner_dir = entries_vec[0].path();
-
-            if let Ok(inner_entries) = fs::read_dir(&inner_dir) {
-                for inner_entry in inner_entries.flatten() {
-                    let file_name = inner_entry.file_name();
-                    let dest_path = instance_dir.join(file_name);
-                    let _ = fs::rename(inner_entry.path(), dest_path);
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                let check_exe = path.join("Minecraft.Client.exe");
+                if check_exe.exists() {
+                    let inner_dir = path;
+                    if let Ok(inner_entries) = fs::read_dir(&inner_dir) {
+                        for inner_entry in inner_entries.flatten() {
+                            let file_name = inner_entry.file_name();
+                            let dest_path = instance_dir.join(file_name);
+                            if fs::rename(inner_entry.path(), &dest_path).is_err() {
+                                if inner_entry.path().is_dir() {
+                                    let _ = copy_dir_all(inner_entry.path(), &dest_path);
+                                    let _ = fs::remove_dir_all(inner_entry.path());
+                                } else {
+                                    let _ = fs::copy(inner_entry.path(), &dest_path);
+                                    let _ = fs::remove_file(inner_entry.path());
+                                }
+                            }
+                        }
+                    }
+                    let _ = fs::remove_dir_all(&inner_dir);
+                    break;
                 }
             }
-            let _ = fs::remove_dir(&inner_dir);
         }
     }
 

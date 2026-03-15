@@ -65,7 +65,7 @@ export const VersionsView: React.FC<VersionsViewProps> = ({
                     disabled={!!installingInstance}
                     className="legacy-btn px-4 py-2 text-xl reinstall-btn"
                   >
-                    Reinstall
+                    Update
                   </button>
                 </>
               ) : (
