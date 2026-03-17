@@ -9,15 +9,32 @@ interface SavedSkin {
   url: string;
 }
 
+const DEFAULT_SKINS: SavedSkin[] = [
+  { id: 'default', name: 'Default Steve', url: '/images/Default.png' },
+  { id: 'journ3ym3n', name: 'Journ3ym3n', url: '/Skins/Journ3ym3n.png' },
+  { id: 'justneki', name: 'JustNeki', url: '/Skins/JustNeki.png' },
+  { id: 'kayjann', name: 'KayJann', url: '/Skins/KayJann.png' },
+  { id: 'leon', name: 'Leon', url: '/Skins/Leon.png' },
+  { id: 'mr_anilex', name: 'mr_anilex', url: '/Skins/mr_anilex.png' },
+  { id: 'neoapps', name: 'neoapps', url: '/Skins/neoapps.png' },
+  { id: 'peter', name: 'Peter', url: '/Skins/Peter.png' },
+];
+
 export default function SkinsView({ skinUrl, setSkinUrl, playClickSound, playBackSound, setActiveView }: any) {
   const [backHover, setBackHover] = useState(false);
   const [importHover, setImportHover] = useState(false);
   const [deleteHover, setDeleteHover] = useState(false);
   const [folderHover, setFolderHover] = useState(false);
   
-  const [savedSkins, setSavedSkins] = useLocalStorage<SavedSkin[]>('lce-custom-skins', [
-    { id: 'default', name: 'Default Steve', url: '/images/Default.png' }
-  ]);
+  const [storedSkins, setStoredSkins] = useLocalStorage<SavedSkin[]>('lce-custom-skins', []);
+  
+  const savedSkins = [...DEFAULT_SKINS, ...storedSkins.filter(s => !DEFAULT_SKINS.some(d => d.id === s.id))];
+
+  const setSavedSkins = (newSkins: SavedSkin[] | ((val: SavedSkin[]) => SavedSkin[])) => {
+    const updatedSkins = typeof newSkins === 'function' ? newSkins(savedSkins) : newSkins;
+    const customOnes = updatedSkins.filter(s => !DEFAULT_SKINS.some(d => d.id === s.id));
+    setStoredSkins(customOnes);
+  };
   
   const [activeSkinId, setActiveSkinId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,8 +97,10 @@ export default function SkinsView({ skinUrl, setSkinUrl, playClickSound, playBac
     setSkinUrl(skin.url);
   };
 
+  const isDefaultSkin = (id: string | null) => DEFAULT_SKINS.some(d => d.id === id);
+
   const handleDeleteActive = () => {
-    if (activeSkinId === 'default' || !activeSkinId) return;
+    if (!activeSkinId || isDefaultSkin(activeSkinId)) return;
     playClickSound();
 
     const updatedSkins = savedSkins.filter(s => s.id !== activeSkinId);
@@ -95,7 +114,7 @@ export default function SkinsView({ skinUrl, setSkinUrl, playClickSound, playBac
     setSavedSkins(updatedSkins);
   };
 
-  const isActiveDefault = activeSkinId === 'default' || (!activeSkinId && skinUrl === '/images/Default.png');
+  const isActiveDefault = isDefaultSkin(activeSkinId) || (!activeSkinId && skinUrl === '/images/Default.png');
 
   return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="flex flex-col items-center w-full max-w-3xl -mt-16">
@@ -163,8 +182,9 @@ export default function SkinsView({ skinUrl, setSkinUrl, playClickSound, playBac
                         <input 
                            type="text" value={skin.name} maxLength={16}
                            onChange={(e) => handleNameChange(skin.id, e.target.value)}
-                           className={`bg-transparent text-center outline-none border-none text-base mc-text-shadow w-full truncate transition-colors ${isActive ? 'text-[#FFFF55]' : 'text-white'}`}
+                           className={`bg-transparent text-center outline-none border-none text-base mc-text-shadow w-full truncate transition-colors ${isActive ? 'text-[#FFFF55]' : 'text-white'} ${isDefaultSkin(skin.id) ? 'pointer-events-none' : ''}`}
                            onClick={(e) => e.stopPropagation()} spellCheck={false}
+                           readOnly={isDefaultSkin(skin.id)}
                         />
                      </div>
                  );
