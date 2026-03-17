@@ -25,7 +25,6 @@ export default function SkinViewer({ username, setUsername, playClickSound, skin
       width: 220,
       height: 380,
       skin: skinUrl,
-      alpha: true
     });
     
     viewerRef.current.animation = new IdleAnimation();
