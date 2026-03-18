@@ -269,20 +269,23 @@ function AppContent() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 50 }}
             className="absolute top-14 right-8 z-[100] w-64 p-4 shadow-2xl flex flex-col gap-2"
-            style={{ backgroundImage: "url('/images/frame_background.png')", backgroundSize: "100% 100%", imageRendering: "pixelated" }}
+            style={{ backgroundImage: "url('/images/Download_Background.png')", backgroundSize: "100% 100%", imageRendering: "pixelated" }}
           >
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-1">
               <span className="text-xs text-[#FFFF55] mc-text-shadow uppercase tracking-widest font-bold">Downloading</span>
-              <span className="text-xs text-white mc-text-shadow">{Math.floor(downloadProgress)}%</span>
-            </div>
-            <div className="text-[10px] text-gray-300 mc-text-shadow truncate uppercase opacity-80">
-              {editions.find(e => e.id === downloadingId)?.name || 'Game Files'}
-            </div>
-            <div className="w-full h-2 bg-black/40 border border-[#373737] relative overflow-hidden">
-              <div
-                className="h-full bg-[#FFFF55] transition-all duration-300"
-                style={{ width: `${downloadProgress}%` }}
-              />
+              <div className="text-[10px] text-gray-300 mc-text-shadow truncate uppercase opacity-80 pb-1">
+                {editions.find(e => e.id === downloadingId)?.name || 'Game Files'}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-white mc-text-shadow w-6 text-right shrink-0 flex items-center justify-end h-[14px] leading-none">{Math.floor(downloadProgress)}%</span>
+                <div className="flex-1 h-[14px] border-2 border-white bg-black/40 relative">
+                  <div
+                    className="h-full bg-white transition-all duration-300"
+                    style={{ width: `${downloadProgress}%` }}
+                  />
+                </div>
+                <img src="/images/loading.gif" alt="Loading" className="w-4 h-4 shrink-0 object-contain drop-shadow-[0_0_2px_rgba(255,255,255,0.8)] brightness-110" style={{ imageRendering: 'pixelated' }} />
+              </div>
             </div>
           </motion.div>
         )}
