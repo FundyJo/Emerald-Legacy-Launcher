@@ -60,7 +60,7 @@ function AppContent() {
   ];
   const [splashIndex, setSplashIndex] = useState(-1);
   const editions = [
-    { id: 'legacy_evolved', name: 'Legacy Evolved', desc: 'Backporting the newer title updates back to the TU19 (like TU31)', url: 'https://github.com/piebotc/LegacyEvolved/releases/download/nightly/LCEWindows64.zip' },
+    { id: 'legacy_evolved', name: 'Legacy Evolved', desc: 'Backporting the newer title updates back to the LCE', url: 'https://github.com/piebotc/LegacyEvolved/releases/download/nightly/LCEWindows64.zip' },
     { id: 'vanilla_tu24', name: 'Title Update 24', desc: 'Based on TU19, but with the features of TU24.', url: 'https://huggingface.co/datasets/KayJann/emerald-legacy-assets/resolve/main/emerald_tu24_vanilla.zip' },
     { id: 'vanilla_tu19', name: 'Title Update 19', desc: 'Leaked 4J Studios build. (smartcmd)', url: "https://github.com/smartcmd/MinecraftConsoles/releases/download/nightly/LCEWindows64.zip" }
   ];
@@ -271,12 +271,12 @@ function AppContent() {
             className="absolute top-14 right-8 z-[100] w-64 p-4 shadow-2xl flex flex-col gap-2"
             style={{ backgroundImage: "url('/images/Download_Background.png')", backgroundSize: "100% 100%", imageRendering: "pixelated" }}
           >
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-[#FFFF55] mc-text-shadow uppercase tracking-widest font-bold">Downloading</span>
-              <div className="text-[10px] text-gray-300 mc-text-shadow truncate uppercase opacity-80 pb-1">
+            <div className="flex flex-col gap-1 w-full">
+              <span className="text-xs text-[#FFFF55] mc-text-shadow uppercase tracking-widest font-bold text-center w-full">Downloading</span>
+              <div className="text-[10px] text-gray-300 mc-text-shadow truncate uppercase opacity-80 pb-1 text-center w-full">
                 {editions.find(e => e.id === downloadingId)?.name || 'Game Files'}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full">
                 <span className="text-[10px] text-white mc-text-shadow w-6 text-right shrink-0 flex items-center justify-end h-[14px] leading-none">{Math.floor(downloadProgress)}%</span>
                 <div className="flex-1 h-[14px] border-2 border-white bg-black/40 relative">
                   <div
@@ -284,7 +284,9 @@ function AppContent() {
                     style={{ width: `${downloadProgress}%` }}
                   />
                 </div>
-                <img src="/images/loading.gif" alt="Loading" className="w-4 h-4 shrink-0 object-contain drop-shadow-[0_0_2px_rgba(255,255,255,0.8)] brightness-110" style={{ imageRendering: 'pixelated' }} />
+                <div className="w-6 flex items-center justify-start shrink-0">
+                  <img src="/images/loading.gif" alt="Loading" className="w-4 h-4 object-contain" style={{ imageRendering: 'pixelated' }} />
+                </div>
               </div>
             </div>
           </motion.div>
@@ -301,8 +303,11 @@ function AppContent() {
 
             <AnimatePresence>
               {logoAnimDone && (
-                <motion.div key="header" {...uiFade} data-tauri-drag-region className="h-10 w-full flex justify-between items-center px-2 absolute top-0 left-0 z-50 bg-gradient-to-b from-black/80 to-transparent">
-                  <div data-tauri-drag-region className="pl-2 text-sm text-gray-300 mc-text-shadow opacity-80">Emerald Legacy Launcher</div>
+                <motion.div key="header" {...uiFade} data-tauri-drag-region className="h-10 w-full flex justify-between items-center px-1 absolute top-0 left-0 z-50 bg-gradient-to-b from-black/80 to-transparent">
+                  <div data-tauri-drag-region className="pl-3 flex items-center justify-center gap-[6px] pointer-events-none h-full pt-[2px]">
+                    <img src="/images/icon.png" alt="Icon" className="w-[16px] h-[16px] object-contain block" style={{ imageRendering: 'pixelated' }} />
+                    <span className="text-xs text-gray-300 mc-text-shadow opacity-90 tracking-wide leading-none block pt-[1px]">Emerald Legacy Launcher</span>
+                  </div>
                   <div className="flex items-center gap-1 pr-2">
                     <button onClick={() => { playClickSound(); appWindow.minimize(); }} className="w-10 h-8 flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/20 transition-all bg-transparent"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
                     <button onClick={() => { playClickSound(); appWindow.toggleMaximize(); }} className="w-10 h-8 flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/20 transition-all bg-transparent"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square"><rect x="3" y="3" width="18" height="18"></rect></svg></button>

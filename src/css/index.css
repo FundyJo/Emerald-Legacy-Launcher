@@ -36,9 +36,9 @@ body {
 }
 
 .mc-text-shadow {
-  text-shadow: 2px 2px 0px rgba(63, 63, 63, 1);
+  text-shadow: 1px 1px 0px rgba(63, 63, 63, 1);
 }
 
 .mc-text-shadow-hover {
-  text-shadow: 2px 2px 0px rgba(63, 90, 63, 1);
+  text-shadow: 1px 1px 0px rgba(63, 90, 63, 1);
 }
