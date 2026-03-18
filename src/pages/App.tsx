@@ -12,20 +12,16 @@ import MarketplaceView from '../components/views/MarketplaceView';
 import SkinViewer from '../components/common/SkinViewer';
 import TeamModal from '../components/modals/TeamModal';
 import PanoramaBackground from '../components/common/PanoramaBackground';
-import { GamepadProvider } from '../components/common/GamepadContext';
 import { useGamepad } from '../hooks/useGamepad';
 
 const appWindow = getCurrentWindow();
 
 export default function App() {
   return (
-    <GamepadProvider>
-      <AppContent />
-    </GamepadProvider>
+    <AppContent />
   );
 }
 
-const TABS = ['main', 'versions', 'skins', 'marketplace', 'themes', 'settings'];
 
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
@@ -33,6 +29,7 @@ function AppContent() {
   const [activeView, setActiveView] = useState('main');
   const [isUiHidden, setIsUiHidden] = useState(false);
   const [showCredits, setShowCredits] = useState(false);
+  const [focusSection, setFocusSection] = useState<'menu' | 'skin'>('menu');
 
   const [profile, setProfile] = useLocalStorage('lce-profile', 'TU75');
   const [installs, setInstalls] = useLocalStorage<string[]>('lce-installs', []);
@@ -92,9 +89,6 @@ function AppContent() {
   };
 
   const { connected } = useGamepad({
-    activeTab: activeView,
-    tabs: TABS,
-    setActiveTab: setActiveView,
     playSfx
   });
 
@@ -215,11 +209,26 @@ function AppContent() {
             <main className="flex-1 w-full relative">
               <div className={`w-full h-full flex flex-col items-center justify-center transition-opacity duration-300 ${(!logoAnimDone || isUiHidden) ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
 
-                {activeView === 'main' && <SkinViewer username={username} setUsername={setUsername} playClickSound={playClickSound} skinUrl={skinUrl} setSkinUrl={setSkinUrl} setActiveView={setActiveView} />}
+                {activeView === 'main' && (
+                  <SkinViewer 
+                    username={username} setUsername={setUsername} 
+                    playClickSound={playClickSound} skinUrl={skinUrl} 
+                    setSkinUrl={setSkinUrl} setActiveView={setActiveView}
+                    isFocusedSection={focusSection === 'skin'}
+                    onNavigateRight={() => setFocusSection('menu')}
+                  />
+                )}
 
                 <div className="w-full max-w-4xl relative flex justify-center items-center">
                   <AnimatePresence>
-                    {activeView === 'main' && <HomeView handleLaunch={handleLaunch} setActiveView={setActiveView} playClickSound={playClickSound} setShowCredits={setShowCredits} />}
+                    {activeView === 'main' && (
+                      <HomeView 
+                        handleLaunch={handleLaunch} setActiveView={setActiveView} 
+                        playClickSound={playClickSound} setShowCredits={setShowCredits} 
+                        isFocusedSection={focusSection === 'menu'}
+                        onNavigateLeft={() => setFocusSection('skin')}
+                      />
+                    )}
                     {activeView === 'settings' && <SettingsView vfxEnabled={vfxEnabled} setVfxEnabled={setVfxEnabled} music={musicVol} setMusic={setMusicVol} sfx={sfxVol} setSfx={setSfxVol} layout={layout} setLayout={setLayout} currentTrack={currentTrack} setCurrentTrack={setCurrentTrack} tracks={tracks} playClickSound={playClickSound} playBackSound={playBackSound} setActiveView={setActiveView} />}
                     {activeView === 'versions' && <VersionsView selectedProfile={profile} setSelectedProfile={setProfile} installedVersions={installs} toggleInstall={toggleInstall} playClickSound={playClickSound} playBackSound={playBackSound} setActiveView={setActiveView} editions={editions} />}
                     {activeView === 'marketplace' && <MarketplaceView playBackSound={playBackSound} setActiveView={setActiveView} />}

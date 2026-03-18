@@ -7,14 +7,6 @@
   font-style: normal;
 }
 
-button:focus-visible, 
-input:focus-visible, 
-[tabindex="0"]:focus-visible {
-  outline: 3px solid #FFFF55 !important;
-  outline-offset: 2px;
-  z-index: 100;
-}
-
 .gamepad-connected-indicator {
   position: fixed;
   bottom: 10px;

@@ -1,15 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useGamepadContext } from '../components/common/GamepadContext';
 
 export interface UseGamepadProps {
-  activeTab: string;
-  tabs: string[];
-  setActiveTab: (tab: string) => void;
   playSfx: (file: string) => void;
 }
 
-export const useGamepad = ({ activeTab, tabs, setActiveTab, playSfx }: UseGamepadProps) => {
-  const { moveFocus } = useGamepadContext();
+export const useGamepad = ({ playSfx }: UseGamepadProps) => {
   const [connected, setConnected] = useState(false);
   const connectedRef = useRef(false);
   const requestRef = useRef<number | undefined>(undefined);
@@ -17,20 +12,31 @@ export const useGamepad = ({ activeTab, tabs, setActiveTab, playSfx }: UseGamepa
   const lastAxes = useRef<Record<number, number>>({});
 
   const stateRef = useRef({
-    activeTab,
-    tabs,
-    setActiveTab,
     playSfx,
-    moveFocus
   });
 
   useEffect(() => {
-    stateRef.current = { activeTab, tabs, setActiveTab, playSfx, moveFocus };
-  }, [activeTab, tabs, setActiveTab, playSfx, moveFocus]);
+    stateRef.current = { playSfx };
+  }, [playSfx]);
+
+  const dispatchKey = (key: string, shiftKey = false) => {
+    window.dispatchEvent(new KeyboardEvent('keydown', {
+      key,
+      shiftKey,
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+    window.dispatchEvent(new KeyboardEvent('keyup', {
+      key,
+      shiftKey,
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+  };
 
   const update = useCallback(() => {
-    const { activeTab: tab, tabs: tabsList, setActiveTab: setTab, playSfx: play, moveFocus: move } = stateRef.current;
-
     let anyConnected = false;
     try {
       const gamepads = navigator.getGamepads ? navigator.getGamepads() : null;
@@ -47,52 +53,32 @@ export const useGamepad = ({ activeTab, tabs, setActiveTab, playSfx }: UseGamepa
           };
 
           const justPressed = (i: number) => btnVal(i) > 0.5 && !lastButtons.current[i];
-
           if (justPressed(1)) { // A
-            const active = document.activeElement as HTMLElement;
-            if (active?.click) active.click();
+            dispatchKey('Enter');
           }
 
           if (justPressed(2)) { // B
-            if (tab !== "main") {
-              setTab("main");
-              play("back_click.ogg");
-            }
+            dispatchKey('Escape');
           }
 
-          if (justPressed(7)) { // L1
-            const idx = tabsList.indexOf(tab);
-            const nextIdx = idx > 0 ? idx - 1 : tabsList.length - 1;
-            setTab(tabsList[nextIdx]);
-            play("click.wav");
-          }
-
-          if (justPressed(8)) { // R1
-            const idx = tabsList.indexOf(tab);
-            const nextIdx = idx < tabsList.length - 1 ? idx + 1 : 0;
-            setTab(tabsList[nextIdx]);
-            play("click.wav");
-          }
-
+          if (justPressed(4)) dispatchKey('Tab', true);
+          if (justPressed(5)) dispatchKey('Tab');
           const newButtons: Record<number, boolean> = {};
           gp.buttons.forEach((btn, i) => {
             newButtons[i] = (typeof btn === "object" ? btn.value : btn) > 0.5;
           });
           lastButtons.current = newButtons;
-
-          const rawAxisY = gp.axes[2] ?? 0;
-          const prevY = lastAxes.current[2] ?? 0;
           const deadzone = 0.5;
-
-          if (Math.abs(rawAxisY) > deadzone && Math.abs(prevY) <= deadzone) {
-            move(0, rawAxisY > 0 ? 1 : -1);
+          const axisY = gp.axes[2] ?? 0; // LS Y
+          const prevY = lastAxes.current[2] ?? 0;
+          if (Math.abs(axisY) > deadzone && Math.abs(prevY) <= deadzone) {
+            dispatchKey(axisY < 0 ? 'ArrowDown' : 'ArrowUp');
           }
-          lastAxes.current[2] = rawAxisY;
-
-          const axisX = gp.axes[1] ?? 0; // LS (X)
+          lastAxes.current[2] = axisY;
+          const axisX = gp.axes[1] ?? 0; // LS X
           const prevX = lastAxes.current[1] ?? 0;
           if (Math.abs(axisX) > deadzone && Math.abs(prevX) <= deadzone) {
-            move(axisX > 0 ? 1 : -1, 0);
+            dispatchKey(axisX > 0 ? 'ArrowRight' : 'ArrowLeft');
           }
           lastAxes.current[1] = axisX;
         }
