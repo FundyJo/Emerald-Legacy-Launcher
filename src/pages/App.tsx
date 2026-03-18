@@ -11,6 +11,7 @@ import MarketplaceView from '../components/views/MarketplaceView';
 import SkinViewer from '../components/common/SkinViewer';
 import TeamModal from '../components/modals/TeamModal';
 import PanoramaBackground from '../components/common/PanoramaBackground';
+import { ClickParticles } from '../components/common/ClickParticles';
 import { useGamepad } from '../hooks/useGamepad';
 import { TauriService } from '../services/TauriService';
 import RpcService from '../services/RpcService';
@@ -259,6 +260,7 @@ function AppContent() {
       `}</style>
 
       <PanoramaBackground profile={profile} isDay={isDayTime} />
+      {vfxEnabled && <ClickParticles />}
       <AnimatePresence>
         {showCredits && <TeamModal isOpen={showCredits} onClose={() => setShowCredits(false)} playClickSound={playClickSound} playBackSound={playBackSound} />}
       </AnimatePresence>

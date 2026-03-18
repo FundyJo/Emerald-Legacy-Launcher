@@ -42,3 +42,21 @@ body {
 .mc-text-shadow-hover {
   text-shadow: 1px 1px 0px rgba(63, 90, 63, 1);
 }
+
+
+@keyframes sga-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(calc(-50% + var(--vX)), calc(-50% + var(--vY))) scale(1.2) rotate(var(--rot));
+    opacity: 0;
+  }
+}
+
+.particle-burst {
+  animation: sga-burst 0.8s ease-out forwards;
+  filter: drop-shadow(0 0 8px rgba(180, 100, 255, 0.9));
+}
