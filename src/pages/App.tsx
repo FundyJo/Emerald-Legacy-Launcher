@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useLocalStorage } from "../hooks/useLocalStorage";
@@ -55,6 +55,7 @@ function AppContent() {
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(
     null,
   );
+  const musicPausedRef = useRef<{ at: number; track: number } | null>(null);
   const splashes = [
     "Legacy is back!",
     "Pixelated goodness!",
@@ -230,7 +231,7 @@ function AppContent() {
   }, [activeView]);
 
   useEffect(() => {
-    if (showIntro) return;
+    if (showIntro || audioElement) return;
     const audio = new Audio(tracks[currentTrack]);
     audio.volume = musicVol / 100;
     const handleEnded = () =>
@@ -246,7 +247,37 @@ function AppContent() {
       audio.removeEventListener("ended", handleEnded);
       audio.pause();
     };
-  }, [currentTrack, showIntro]);
+  }, [showIntro]);
+
+  useEffect(() => {
+    if (!audioElement) return;
+    audioElement.src = tracks[currentTrack];
+    const playPromise = audioElement.play();
+    if (playPromise !== undefined)
+      playPromise.catch(() => {});
+  }, [currentTrack]);
+
+  useEffect(() => {
+    if (!audioElement) return;
+    if (isGameRunning) {
+      if (!audioElement.paused) {
+        musicPausedRef.current = {
+          at: audioElement.currentTime,
+          track: currentTrack,
+        };
+        audioElement.pause();
+      }
+    } else if (musicPausedRef.current) {
+      const { at, track } = musicPausedRef.current;
+      musicPausedRef.current = null;
+      if (track === currentTrack) {
+        audioElement.currentTime = at;
+        audioElement.play().catch(() => {});
+      } else {
+        audioElement.play().catch(() => {});
+      }
+    }
+  }, [isGameRunning]);
 
   useEffect(() => {
     if (audioElement) audioElement.volume = musicVol / 100;
