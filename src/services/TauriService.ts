@@ -103,8 +103,8 @@ export class TauriService {
     return invoke('launch_game', { instanceId, servers });
   }
 
-  static async stopGame(): Promise<void> {
-    return invoke('stop_game');
+  static async stopGame(instanceId: string): Promise<void> {
+    return invoke('stop_game', { instanceId });
   }
 
   static onDownloadProgress(callback: (percent: number) => void) {

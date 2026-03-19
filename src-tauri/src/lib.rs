@@ -129,7 +129,7 @@ fn find_executable_recursive(root: &PathBuf, file_name: &str) -> Option<PathBuf>
     None
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 fn unix_path_to_wine_z_path(unix_path: &PathBuf) -> String {
     let p = unix_path.to_string_lossy();
     let mut out = String::with_capacity(p.len() + 3);
@@ -989,18 +989,27 @@ async fn launch_game(app: AppHandle, state: State<'_, GameState>, instanceId: St
     }
 }
 
+#[cfg(unix)]
+fn kill_process_tree(app: &AppHandle, instance_id: &str) { // neo: dont question me.
+    let root = get_app_dir(&app);
+    let instance_dir = root.join("instances").join(instance_id);
+    let target = unix_path_to_wine_z_path(&instance_dir.join("Minecraft.Client.exe"));
+    let Ok(entries) = fs::read_dir("/proc") else { return };
+    for entry in entries.flatten() {
+        let Ok(pid) = entry.file_name().to_string_lossy().parse::<u32>() else { continue };
+        let cmdline = fs::read_to_string(format!("/proc/{}/cmdline", pid))
+            .unwrap_or_default();
+        if cmdline.contains(&*target) {
+            unsafe { libc::kill(pid as i32, libc::SIGKILL); }
+        }
+    }
+}
+
 #[tauri::command]
-async fn stop_game(state: State<'_, GameState>) -> Result<(), String> {
+async fn stop_game(app: AppHandle, instanceId: String, state: State<'_, GameState>) -> Result<(), String> {
     let mut lock = state.child.lock().await;
     if let Some(mut child) = lock.take() {
-        #[cfg(unix)]
-        {
-            if let Some(pid) = child.id() {
-                unsafe {
-                    libc::kill(-(pid as i32), libc::SIGKILL);
-                }
-            }
-        }
+        #[cfg(unix)] kill_process_tree(&app, &instanceId);
         let _ = child.kill().await;
     }
     Ok(())

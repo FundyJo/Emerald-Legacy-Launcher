@@ -38,7 +38,7 @@ export default function HomeView({
       if (e.key === 'ArrowDown') setMenuFocus(prev => prev === null ? 0 : (prev < buttons.length - 1 ? prev + 1 : prev));
       if (e.key === 'ArrowUp') setMenuFocus(prev => prev === null ? buttons.length - 1 : (prev > 0 ? prev - 1 : prev));
       if (e.key === 'ArrowLeft') onNavigateLeft();
-      if (e.key === 'Enter' && menuFocus !== null) { playClickSound(); buttons[menuFocus].action(); }
+      if (e.key === 'Enter' && menuFocus !== null) { buttons[menuFocus].action(); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
