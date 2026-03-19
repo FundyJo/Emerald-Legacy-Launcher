@@ -5,13 +5,20 @@ export default function HomeView({
   handleLaunch, setActiveView, 
   playClickSound, setShowCredits, 
   isFocusedSection, onNavigateLeft,
-  isGameRunning, stopGame
+  isGameRunning, stopGame,
+  profile, editions,
+  installs, toggleInstall,
+  downloadProgress, downloadingId
 }: any) {
+  const selectedEdition = editions.find((e: any) => e.id === profile);
+  const selectedVersionName = selectedEdition?.name || 'Game';
+  const isInstalled = installs.includes(profile);
+  const isDownloading = downloadingId === profile;
   const [menuFocus, setMenuFocus] = useState<number | null>(null);
   const buttons = [
     { 
-      label: isGameRunning ? 'Stop Game' : 'Play Game', 
-      action: isGameRunning ? stopGame : handleLaunch,
+      label: isGameRunning ? 'Stop Game' : (isDownloading ? `Downloading... ${Math.floor(downloadProgress || 0)}%` : (isInstalled ? `Play ${selectedVersionName}` : `Download ${selectedVersionName}`)), 
+      action: isGameRunning ? stopGame : (isInstalled ? handleLaunch : () => toggleInstall(profile)),
       isDanger: isGameRunning
     },
     { label: 'Help & Options', action: () => setActiveView('settings') },

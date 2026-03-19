@@ -116,6 +116,7 @@ function AppContent() {
       setDownloadProgress(0);
       await TauriService.downloadAndInstall(edition.url, id);
       await checkInstalls();
+      setProfile(id);
       setDownloadProgress(null);
       setDownloadingId(null);
     } catch (e) {
@@ -216,6 +217,7 @@ function AppContent() {
     if (isGameRunning) return;
     setIsGameRunning(true);
     try {
+      console.log(`Launching game with profile: ${profile}`);
       await TauriService.launchGame(profile, []);
     } catch (e) {
       console.error(e);
@@ -392,6 +394,9 @@ function AppContent() {
                         isFocusedSection={focusSection === 'menu'}
                         onNavigateLeft={() => setFocusSection('skin')}
                         isGameRunning={isGameRunning} stopGame={stopGame}
+                        profile={profile} editions={editions}
+                        installs={installs} toggleInstall={toggleInstall}
+                        downloadProgress={downloadProgress} downloadingId={downloadingId}
                       />
                     )}
                     {activeView === 'settings' && <SettingsView vfxEnabled={vfxEnabled} setVfxEnabled={setVfxEnabled} music={musicVol} setMusic={setMusicVol} sfx={sfxVol} setSfx={setSfxVol} layout={layout} setLayout={setLayout} currentTrack={currentTrack} setCurrentTrack={setCurrentTrack} tracks={tracks} playClickSound={playClickSound} playBackSound={playBackSound} setActiveView={setActiveView} linuxRunner={linuxRunner} setLinuxRunner={setLinuxRunner} perfBoost={perfBoost} setPerfBoost={setPerfBoost} />}
