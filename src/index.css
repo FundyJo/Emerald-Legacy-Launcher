@@ -203,3 +203,62 @@ main::before {
     transform: rotate(-20deg) scale(1.05);
   }
 }
+
+/* Controller Focus Styles */
+.controller-focus {
+  outline: 6px solid #55ff55 !important;
+  outline-offset: -10px !important;
+  box-shadow: inset 0 0 0 2px #000, inset 4px 4px #ffffff, inset -4px -4px #555555, 0 0 20px rgba(85, 255, 85, 0.5) !important;
+  position: relative;
+  z-index: 50;
+}
+
+.controller-focus::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 4px solid #55ff55;
+  pointer-events: none;
+  animation: focus-pulse 1s infinite;
+}
+
+@keyframes focus-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 10px rgba(85, 255, 85, 0.8);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 20px rgba(85, 255, 85, 0.4);
+  }
+}
+
+/* Hide browser focus outline when using controller */
+.controller-mode *:focus {
+  outline: none;
+}
+
+/* Ensure controller focus is visible on all interactive elements */
+.legacy-btn.controller-focus,
+.legacy-select.controller-focus,
+.social-btn.controller-focus {
+  outline: 6px solid #55ff55 !important;
+  outline-offset: -10px !important;
+}
+
+input.controller-focus,
+input[type="range"].controller-focus {
+  outline: 4px solid #55ff55 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 15px rgba(85, 255, 85, 0.6) !important;
+}
+
+/* Focus indicator for range sliders */
+.mc-range.controller-focus::-webkit-slider-thumb {
+  box-shadow: inset 2px 2px #fff, inset -2px -2px #555, 0 0 0 4px #55ff55, 0 0 15px rgba(85, 255, 85, 0.8) !important;
+}
+
+/* Modal focus styles */
+.modal-content.controller-focus {
+  box-shadow: inset 4px 4px #555, inset -4px -4px #111, 0 0 0 6px #55ff55, 0 0 30px rgba(85, 255, 85, 0.6) !important;
+}
