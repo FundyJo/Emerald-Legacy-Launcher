@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef, memo } from "react";
 import { motion } from "framer-motion";
 import { TauriService, ThemePalette } from "../../services/TauriService";
+import { useUI, useConfig, useAudio } from "../../context/LauncherContext";
 
-const ThemesView = memo(function ThemesView({
-  theme: currentTheme,
-  setTheme,
-  playClickSound,
-  playBackSound,
-  setActiveView,
-}: any) {
+const ThemesView = memo(function ThemesView() {
+  const { setActiveView } = useUI();
+  const { theme: currentTheme, setTheme } = useConfig();
+  const { playClickSound, playBackSound } = useAudio();
+
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
   const [externalPalettes, setExternalPalettes] = useState<ThemePalette[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);

@@ -29,6 +29,7 @@ export interface AppConfig {
   themePaletteId?: string;
   appleSiliconPerformanceBoost?: boolean;
   customEditions?: CustomEdition[];
+  profile?: string;
 }
 
 export interface ThemePalette {

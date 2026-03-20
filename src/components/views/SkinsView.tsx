@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, memo } from 'react';
 import { motion } from 'framer-motion';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { TauriService } from '../../services/TauriService';
+import { useUI, useAudio, useSkin } from '../../context/LauncherContext';
 
 interface SavedSkin {
   id: string;
@@ -20,7 +21,11 @@ const DEFAULT_SKINS: SavedSkin[] = [
   { id: 'peter', name: 'Peter', url: '/Skins/Peter.png' },
 ];
 
-const SkinsView = memo(function SkinsView({ skinUrl, setSkinUrl, playClickSound, playBackSound, setActiveView }: any) {
+const SkinsView = memo(function SkinsView() {
+  const { setActiveView } = useUI();
+  const { playClickSound, playBackSound } = useAudio();
+  const { skinUrl, setSkinUrl } = useSkin();
+
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -202,7 +207,7 @@ const SkinsView = memo(function SkinsView({ skinUrl, setSkinUrl, playClickSound,
               className={`mc-sq-btn w-10 h-10 flex items-center justify-center outline-none border-none transition-all`}
               style={{ backgroundImage: focusIndex === 2 ? "url('/images/Button_Square_Highlighted.png')" : "url('/images/Button_Square.png')", backgroundSize: '100% 100%', imageRendering: 'pixelated' }}
             >
-              <img src="/images/Folder_Icon.png" alt="Skins Folder" className="w-8 h-8 object-contain pointer-events-none drop-shadow-md" style={{ imageRendering: 'pixelated' }} />
+              <img src="/images/Folder_Icon.png" alt="Skins Folder" className="w-8 h-8 object-contain pointer-events-none drop-shadow-md" style={{ imageRendering: 'pixelated' }} loading="lazy" decoding="async" />
             </button>
           </div>
 
@@ -223,7 +228,7 @@ const SkinsView = memo(function SkinsView({ skinUrl, setSkinUrl, playClickSound,
                   onClick={() => handleSkinSelect(skin)}
                   className={`w-16 h-16 bg-black/40 border-2 shadow-inner relative cursor-pointer overflow-hidden transition-colors outline-none ${(isActive || isFocused) ? 'border-[#FFFF55]' : 'border-[#373737] hover:border-[#A0A0A0]'}`}
                 >
-                  <img src={skin.url} alt={skin.name} className="absolute max-w-none" style={{ width: '800%', height: 'auto', left: '-100%', top: '-100%', imageRendering: 'pixelated' }} />
+                  <img src={skin.url} alt={skin.name} className="absolute max-w-none" style={{ width: '800%', height: 'auto', left: '-100%', top: '-100%', imageRendering: 'pixelated' }} loading="lazy" decoding="async" />
                 </div>
                 <input
                   type="text" value={skin.name} maxLength={16}

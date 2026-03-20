@@ -1,23 +1,14 @@
 import { useState, useEffect, useMemo, memo } from "react";
 import { motion } from "framer-motion";
+import { useUI, useConfig, useAudio, useGame } from "../../context/LauncherContext";
 
-const HomeView = memo(function HomeView({
-  handleLaunch,
-  setActiveView,
-  playClickSound,
-  setShowCredits,
-  isFocusedSection,
-  onNavigateLeft,
-  isGameRunning,
-  stopGame,
-  profile,
-  editions,
-  installs,
-  toggleInstall,
-  downloadProgress,
-  downloadingId,
-  playSfx,
-}: any) {
+const HomeView = memo(function HomeView() {
+  const { setActiveView, setShowCredits, focusSection, onNavigateToSkin } = useUI();
+  const { profile } = useConfig();
+  const { playClickSound, playSfx } = useAudio();
+  const { handleLaunch, isGameRunning, stopGame, editions, installs, toggleInstall, downloadProgress, downloadingId } = useGame();
+
+  const isFocusedSection = focusSection === "menu";
   const selectedEdition = editions.find((e: any) => e.id === profile);
   const selectedVersionName = selectedEdition?.name || "Game";
   const isInstalled = installs.includes(profile);
@@ -77,14 +68,14 @@ const HomeView = memo(function HomeView({
         setMenuFocus((prev) =>
           prev === null ? buttons.length - 1 : prev > 0 ? prev - 1 : prev,
         );
-      if (e.key === "ArrowLeft") onNavigateLeft();
+      if (e.key === "ArrowLeft") onNavigateToSkin();
       if (e.key === "Enter" && menuFocus !== null) {
         buttons[menuFocus].action();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [menuFocus, buttons, playClickSound, isFocusedSection, onNavigateLeft]);
+  }, [menuFocus, buttons, playClickSound, isFocusedSection, onNavigateToSkin]);
 
   return (
     <motion.div
@@ -134,6 +125,8 @@ const HomeView = memo(function HomeView({
               src="/images/discord.png"
               className="w-16 h-16 drop-shadow-md object-contain"
               style={{ imageRendering: "pixelated" }}
+              loading="lazy"
+              decoding="async"
             />
           </a>
           <a
@@ -149,6 +142,8 @@ const HomeView = memo(function HomeView({
               src="/images/github.png"
               className="w-16 h-16 drop-shadow-md object-contain"
               style={{ imageRendering: "pixelated" }}
+              loading="lazy"
+              decoding="async"
             />
           </a>
         </div>

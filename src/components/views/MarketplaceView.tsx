@@ -1,7 +1,10 @@
 import { useState, useEffect, memo } from 'react';
 import { motion } from 'framer-motion';
+import { useUI, useAudio } from '../../context/LauncherContext';
 
-const MarketplaceView = memo(function MarketplaceView({ playBackSound, setActiveView }: any) {
+const MarketplaceView = memo(function MarketplaceView() {
+  const { setActiveView } = useUI();
+  const { playBackSound } = useAudio();
   const [backHover, setBackHover] = useState(false);
 
   useEffect(() => {

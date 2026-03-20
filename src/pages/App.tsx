@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import HomeView from "../components/views/HomeView";
 import SettingsView from "../components/views/SettingsView";
@@ -10,79 +10,31 @@ import SkinViewer from "../components/common/SkinViewer";
 import TeamModal from "../components/modals/TeamModal";
 import PanoramaBackground from "../components/common/PanoramaBackground";
 import { ClickParticles } from "../components/common/ClickParticles";
-import { useGamepad } from "../hooks/useGamepad";
-import { useAppConfig } from "../hooks/useAppConfig";
-import { useAudioController } from "../hooks/useAudioController";
-import { useGameManager } from "../hooks/useGameManager";
-import { useSkinSync } from "../hooks/useSkinSync";
-import { useDiscordRPC } from "../hooks/useDiscordRPC";
 import { AppHeader } from "../components/layout/AppHeader";
 import { DownloadOverlay } from "../components/layout/DownloadOverlay";
+import { useUI, useConfig, useAudio, useGame, useSkin } from "../context/LauncherContext";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 const appWindow = getCurrentWindow();
 
 export default function App() {
-  return <AppContent />;
-}
+  const {
+    showIntro, setShowIntro, logoAnimDone, setLogoAnimDone,
+    activeView, setActiveView, isUiHidden, setIsUiHidden,
+    showCredits, setShowCredits, focusSection,
+    onNavigateToMenu
+  } = useUI();
 
-function AppContent() {
-  const [showIntro, setShowIntro] = useState(true);
-  const [logoAnimDone, setLogoAnimDone] = useState(false);
-  const [activeView, setActiveView] = useState("main");
-  const [isUiHidden, setIsUiHidden] = useState(false);
-  const [showCredits, setShowCredits] = useState(false);
-  const [focusSection, setFocusSection] = useState<"menu" | "skin">("menu");
-
-  const config = useAppConfig();
-  const { skinUrl, setSkinUrl, skinBase64 } = useSkinSync();
-  const game = useGameManager({
-    profile: config.profile,
-    setProfile: config.setProfile,
-    customEditions: config.customEditions,
-    setCustomEditions: config.setCustomEditions,
-  });
-  const audio = useAudioController({
-    musicVol: config.musicVol,
-    sfxVol: config.sfxVol,
-    showIntro,
-    isGameRunning: game.isGameRunning,
-  });
-
-  useDiscordRPC({
-    rpcEnabled: config.rpcEnabled,
-    showIntro,
-    username: config.username,
-    profile: config.profile,
-    activeView,
-    isGameRunning: game.isGameRunning,
-    downloadProgress: game.downloadProgress,
-    downloadingId: game.downloadingId,
-    editions: game.editions,
-  });
-
-  const { connected } = useGamepad({
-    playSfx: audio.playSfx,
-  });
-
-  const onNavigateToSkin = useCallback(() => setFocusSection("skin"), []);
-  const onNavigateToMenu = useCallback(() => setFocusSection("menu"), []);
+  const config = useConfig();
+  const audio = useAudio();
+  const game = useGame();
+  const { skinUrl, setSkinUrl } = useSkin();
 
   useEffect(() => {
     appWindow.show();
     setTimeout(() => setShowIntro(false), 2400);
     setTimeout(() => setLogoAnimDone(true), 3400);
   }, []);
-
-  useEffect(() => {
-    if (activeView === "main") {
-      audio.setSplashIndex(-1);
-    }
-  }, [activeView]);
-
-  useEffect(() => {
-    config.saveConfig(skinBase64);
-  }, [config.username, skinBase64, config.theme, config.linuxRunner, config.perfBoost, config.customEditions]);
 
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
@@ -274,96 +226,22 @@ function AppContent() {
                 <div className="w-full max-w-4xl relative flex justify-center items-center">
                   <AnimatePresence mode="wait">
                     {activeView === "main" && (
-                      <HomeView
-                        key="main-view"
-                        handleLaunch={game.handleLaunch}
-                        setActiveView={setActiveView}
-                        playClickSound={audio.playClickSound}
-                        setShowCredits={setShowCredits}
-                        isFocusedSection={focusSection === "menu"}
-                        onNavigateLeft={onNavigateToSkin}
-                        isGameRunning={game.isGameRunning}
-                        stopGame={game.stopGame}
-                        profile={config.profile}
-                        editions={game.editions}
-                        installs={game.installs}
-                        toggleInstall={game.toggleInstall}
-                        downloadProgress={game.downloadProgress}
-                        downloadingId={game.downloadingId}
-                        playSfx={audio.playSfx}
-                      />
+                      <HomeView key="main-view" />
                     )}
                     {activeView === "settings" && (
-                      <SettingsView
-                        key="settings-view"
-                        vfxEnabled={config.vfxEnabled}
-                        setVfxEnabled={config.setVfxEnabled}
-                        music={config.musicVol}
-                        setMusic={config.setMusicVol}
-                        sfx={config.sfxVol}
-                        setSfx={config.setSfxVol}
-                        layout={config.layout}
-                        setLayout={config.setLayout}
-                        currentTrack={audio.currentTrack}
-                        setCurrentTrack={audio.setCurrentTrack}
-                        tracks={audio.tracks}
-                        playClickSound={audio.playClickSound}
-                        playBackSound={audio.playBackSound}
-                        setActiveView={setActiveView}
-                        linuxRunner={config.linuxRunner}
-                        setLinuxRunner={config.setLinuxRunner}
-                        perfBoost={config.perfBoost}
-                        setPerfBoost={config.setPerfBoost}
-                        playSfx={audio.playSfx}
-                        rpcEnabled={config.rpcEnabled}
-                        setRpcEnabled={config.setRpcEnabled}
-                      />
+                      <SettingsView key="settings-view" />
                     )}
                     {activeView === "versions" && (
-                      <VersionsView
-                        key="versions-view"
-                        selectedProfile={config.profile}
-                        setSelectedProfile={config.setProfile}
-                        installedVersions={game.installs}
-                        toggleInstall={game.toggleInstall}
-                        playClickSound={audio.playClickSound}
-                        playBackSound={audio.playBackSound}
-                        setActiveView={setActiveView}
-                        editions={game.editions}
-                        onAddEdition={game.addCustomEdition}
-                        onDeleteEdition={game.deleteCustomEdition}
-                        onUninstall={game.handleUninstall}
-                        downloadProgress={game.downloadProgress}
-                        downloadingId={game.downloadingId}
-                        playSfx={audio.playSfx}
-                      />
+                      <VersionsView key="versions-view" />
                     )}
                     {activeView === "marketplace" && (
-                      <MarketplaceView
-                        key="marketplace-view"
-                        playBackSound={audio.playBackSound}
-                        setActiveView={setActiveView}
-                      />
+                      <MarketplaceView key="marketplace-view" />
                     )}
                     {activeView === "themes" && (
-                      <ThemesView
-                        key="themes-view"
-                        theme={config.theme}
-                        setTheme={config.setTheme}
-                        playClickSound={audio.playClickSound}
-                        playBackSound={audio.playBackSound}
-                        setActiveView={setActiveView}
-                      />
+                      <ThemesView key="themes-view" />
                     )}
                     {activeView === "skins" && (
-                      <SkinsView
-                        key="skins-view"
-                        skinUrl={skinUrl}
-                        setSkinUrl={setSkinUrl}
-                        playClickSound={audio.playClickSound}
-                        playBackSound={audio.playBackSound}
-                        setActiveView={setActiveView}
-                      />
+                      <SkinsView key="skins-view" />
                     )}
                   </AnimatePresence>
                 </div>
@@ -383,7 +261,7 @@ function AppContent() {
                     Not affiliated with Mojang AB or Microsoft. "Minecraft" is a trademark of Mojang Synergies AB.
                   </div>
                   <div className="flex-1 text-right whitespace-nowrap">
-                    {connected && "CONTROLLER CONNECTED"}
+                    {useUI().connected && "CONTROLLER CONNECTED"}
                   </div>
                 </motion.footer>
               )}

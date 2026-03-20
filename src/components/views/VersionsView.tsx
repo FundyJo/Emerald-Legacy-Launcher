@@ -2,23 +2,14 @@ import { useState, useEffect, useRef, memo } from "react";
 import { motion } from "framer-motion";
 import { TauriService } from "../../services/TauriService";
 import CustomTUModal from "../modals/CustomTUModal";
+import { useUI, useConfig, useAudio, useGame } from "../../context/LauncherContext";
 
-const VersionsView = memo(function VersionsView({
-  selectedProfile,
-  setSelectedProfile,
-  installedVersions,
-  toggleInstall,
-  playClickSound,
-  playBackSound,
-  setActiveView,
-  editions,
-  onAddEdition,
-  onDeleteEdition,
-  onUninstall,
-  downloadProgress,
-  downloadingId,
-  playSfx,
-}: any) {
+const VersionsView = memo(function VersionsView() {
+  const { setActiveView } = useUI();
+  const { profile: selectedProfile, setProfile: setSelectedProfile } = useConfig();
+  const { playClickSound, playBackSound, playSfx } = useAudio();
+  const { editions, installs: installedVersions, toggleInstall, handleUninstall: onUninstall, deleteCustomEdition: onDeleteEdition, addCustomEdition: onAddEdition, downloadingId, downloadProgress } = useGame();
+
   const [focusRow, setFocusRow] = useState<number>(0);
   const [focusCol, setFocusCol] = useState<number>(0);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -232,6 +223,8 @@ const VersionsView = memo(function VersionsView({
                           alt="Download"
                           className="w-8 h-8 object-contain pointer-events-none drop-shadow-md"
                           style={{ imageRendering: "pixelated" }}
+                          loading="lazy"
+                          decoding="async"
                         />
                       )}
                     </button>
@@ -273,6 +266,8 @@ const VersionsView = memo(function VersionsView({
                             alt="Update"
                             className="w-8 h-8 object-contain pointer-events-none drop-shadow-md"
                             style={{ imageRendering: "pixelated" }}
+                            loading="lazy"
+                            decoding="async"
                           />
                         )}
                       </button>
@@ -303,6 +298,8 @@ const VersionsView = memo(function VersionsView({
                           alt="Folder"
                           className="w-8 h-8 object-contain pointer-events-none drop-shadow-md"
                           style={{ imageRendering: "pixelated" }}
+                          loading="lazy"
+                          decoding="async"
                         />
                       </button>
                       <button

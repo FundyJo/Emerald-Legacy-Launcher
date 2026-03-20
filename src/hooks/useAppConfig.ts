@@ -35,9 +35,10 @@ export function useAppConfig() {
       themeStyleId: theme,
       linuxRunner,
       appleSiliconPerformanceBoost: perfBoost,
+      profile,
       customEditions,
     }).catch(console.error);
-  }, [username, theme, linuxRunner, perfBoost, customEditions]);
+  }, [username, theme, linuxRunner, perfBoost, profile, customEditions]);
 
   return {
     username,

@@ -2,31 +2,14 @@ import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { motion } from "framer-motion";
 import { TauriService, Runner } from "../../services/TauriService";
 import { usePlatform } from "../../hooks/usePlatform";
+import { useUI, useConfig, useAudio, useGame } from "../../context/LauncherContext";
 
-const SettingsView = memo(function SettingsView({
-  vfxEnabled,
-  setVfxEnabled,
-  music: musicVolume,
-  setMusic: setMusicVolume,
-  sfx: sfxVolume,
-  setSfx: setSfxVolume,
-  layout,
-  setLayout,
-  currentTrack,
-  setCurrentTrack,
-  tracks,
-  playClickSound,
-  playBackSound,
-  setActiveView,
-  linuxRunner,
-  setLinuxRunner,
-  perfBoost,
-  setPerfBoost,
-  isGameRunning,
-  stopGame,
-  rpcEnabled,
-  setRpcEnabled,
-}: any) {
+const SettingsView = memo(function SettingsView() {
+  const { setActiveView } = useUI();
+  const { vfxEnabled, setVfxEnabled, musicVol: musicVolume, setMusicVol: setMusicVolume, sfxVol: sfxVolume, setSfxVol: setSfxVolume, layout, setLayout, linuxRunner, setLinuxRunner, perfBoost, setPerfBoost, rpcEnabled, setRpcEnabled } = useConfig();
+  const { currentTrack, setCurrentTrack, tracks, playClickSound, playBackSound } = useAudio();
+  const { isGameRunning, stopGame } = useGame();
+
   const { isLinux, isMac } = usePlatform();
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
   const [runners, setRunners] = useState<Runner[]>([]);
@@ -46,10 +29,8 @@ const SettingsView = memo(function SettingsView({
   };
 
   const handleVfxToggle = () => {
-    if (setVfxEnabled) {
-      playClickSound();
-      setVfxEnabled(!vfxEnabled);
-    }
+    playClickSound();
+    setVfxEnabled(!vfxEnabled);
   };
 
   const handlePerfToggle = () => {
@@ -72,9 +53,7 @@ const SettingsView = memo(function SettingsView({
 
   const handleTrackToggle = () => {
     playClickSound();
-    if (setCurrentTrack && tracks) {
-      setCurrentTrack((currentTrack + 1) % tracks.length);
-    }
+    setCurrentTrack((currentTrack + 1) % tracks.length);
   };
 
   const handleMacosSetup = async () => {
@@ -89,11 +68,13 @@ const SettingsView = memo(function SettingsView({
   let trackName = "Unknown";
   if (tracks && tracks.length > 0) {
     const fullPath = tracks[currentTrack];
-    trackName = fullPath
-      .split("/")
-      .pop()
-      .replace(".ogg", "")
-      .replace(".wav", "");
+    if (fullPath) {
+      trackName = fullPath
+        .split("/")
+        .pop()
+        ?.replace(".ogg", "")
+        .replace(".wav", "") || "Unknown";
+    }
   }
 
   const selectedRunnerName =
@@ -140,23 +121,19 @@ const SettingsView = memo(function SettingsView({
       },
     ];
 
-    if (setVfxEnabled) {
-      items.push({
+    items.push({
         id: "vfx",
         label: `VFX: ${vfxEnabled ? "ON" : "OFF"}`,
         type: "button",
         onClick: handleVfxToggle,
-      });
-    }
+    });
 
-    if (setRpcEnabled) {
-      items.push({
+    items.push({
         id: "rpc",
         label: `Discord RPC: ${rpcEnabled ? "ON" : "OFF"}`,
         type: "button",
         onClick: handleRpcToggle,
-      });
-    }
+    });
 
     items.push({
       id: "layout",
