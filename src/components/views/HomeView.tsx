@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, memo } from "react";
+import { useState, useEffect, useMemo, useRef, memo } from "react";
 import { motion } from "framer-motion";
 import { useUI, useConfig, useAudio, useGame } from "../../context/LauncherContext";
 
@@ -14,6 +14,7 @@ const HomeView = memo(function HomeView() {
   const isInstalled = installs.includes(profile);
   const isDownloading = downloadingId === profile;
   const [menuFocus, setMenuFocus] = useState<number | null>(null);
+  const prevFocusedSectionRef = useRef(isFocusedSection);
   const buttons = useMemo(
     () => [
       {
@@ -54,9 +55,16 @@ const HomeView = memo(function HomeView() {
 
   useEffect(() => {
     if (!isFocusedSection) {
+      prevFocusedSectionRef.current = false;
       setMenuFocus(null);
       return;
     }
+
+    // Only auto-focus once when entering menu section from another section.
+    if (!prevFocusedSectionRef.current) {
+      setMenuFocus(0);
+    }
+    prevFocusedSectionRef.current = true;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement?.tagName === "INPUT") return;

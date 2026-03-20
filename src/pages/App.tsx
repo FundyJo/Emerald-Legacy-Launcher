@@ -22,7 +22,7 @@ export default function App() {
   const {
     showIntro, setShowIntro, logoAnimDone, setLogoAnimDone,
     activeView, setActiveView, isUiHidden, setIsUiHidden,
-    showCredits, setShowCredits, focusSection,
+    showCredits, setShowCredits, focusSection, connected,
     onNavigateToMenu
   } = useUI();
 
@@ -267,7 +267,7 @@ export default function App() {
                     Not affiliated with Mojang AB or Microsoft. "Minecraft" is a trademark of Mojang Synergies AB.
                   </div>
                   <div className="flex-1 text-right whitespace-nowrap">
-                    {useUI().connected && "CONTROLLER CONNECTED"}
+                    {connected && "CONTROLLER CONNECTED"}
                   </div>
                 </motion.footer>
               )}

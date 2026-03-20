@@ -1,127 +1,103 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { GamepadManager } from './dist/esm/gamepad.js';
 
 export interface UseGamepadProps {
   playSfx: (file: string) => void;
 }
 
-export const useGamepad = ({ playSfx }: UseGamepadProps) => {
+export const useGamepad = (_props: UseGamepadProps) => {
+  const DEBUG_GAMEPAD = true;
   const [connected, setConnected] = useState(false);
-  const requestRef = useRef<number | undefined>(undefined);
-  const focusedRef = useRef(document.hasFocus());
-  const lastButtons = useRef<Record<number, boolean>>({});
-  const lastAxes = useRef<Record<number, number>>({});
-  const stateRef = useRef({ playSfx });
+  const lastConnectedRef = useRef<boolean | null>(null);
+  const lastButtonsRef = useRef<Record<number, boolean>>({});
+  const lastAxesRef = useRef<Record<number, number>>({});
 
   useEffect(() => {
-    const onFocus = () => { focusedRef.current = true; };
-    const onBlur = () => {
-      focusedRef.current = false;
-      lastButtons.current = {};
-      lastAxes.current = {};
-    };
-    window.addEventListener('focus', onFocus);
-    window.addEventListener('blur', onBlur);
-    return () => {
-      window.removeEventListener('focus', onFocus);
-      window.removeEventListener('blur', onBlur);
-    };
-  }, []);
+    const manager = new GamepadManager({ deadzone: 0.5 });
 
-  useEffect(() => {
-    stateRef.current = { playSfx };
-  }, [playSfx]);
+    const emitKey = (key: string, shiftKey = false) => {
+      window.dispatchEvent(new KeyboardEvent('keydown', {
+        key,
+        shiftKey,
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      }));
+      window.dispatchEvent(new KeyboardEvent('keyup', {
+        key,
+        shiftKey,
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      }));
 
-  const dispatchKey = (key: string, shiftKey = false) => {
-    window.dispatchEvent(new KeyboardEvent('keydown', {
-      key, shiftKey, bubbles: true, cancelable: true, view: window
-    }));
-    window.dispatchEvent(new KeyboardEvent('keyup', {
-      key, shiftKey, bubbles: true, cancelable: true, view: window
-    }));
-  };
-
-  const update = useCallback(() => {
-    if (!focusedRef.current) {
-      requestRef.current = requestAnimationFrame(update);
-      return;
-    }
-    try {
-      const gamepads = navigator.getGamepads ? navigator.getGamepads() : null;
-      if (gamepads) {
-        for (const gp of gamepads) {
-          if (!gp) continue;
-          const btnVal = (i: number): number => {
-            const btn = gp.buttons[i];
-            if (!btn) return 0;
-            return typeof btn === "object" ? btn.value : (btn as any) ?? 0;
-          };
-          const justPressed = (i: number) => btnVal(i) > 0.5 && !lastButtons.current[i];
-          
-          if (justPressed(1)) dispatchKey('Enter');
-          if (justPressed(2)) dispatchKey('Escape');
-          if (justPressed(4)) dispatchKey('Tab', true);
-          if (justPressed(5)) dispatchKey('Tab');
-
-          const newButtons: Record<number, boolean> = {};
-          gp.buttons.forEach((btn, i) => {
-            newButtons[i] = (typeof btn === "object" ? btn.value : btn) > 0.5;
-          });
-          lastButtons.current = newButtons;
-
-          const deadzone = 0.5;
-          const axisY = gp.axes[2] ?? 0;
-          const prevY = lastAxes.current[2] ?? 0;
-          if (Math.abs(axisY) > deadzone && Math.abs(prevY) <= deadzone) {
-            dispatchKey(axisY < 0 ? 'ArrowDown' : 'ArrowUp');
-          }
-          lastAxes.current[2] = axisY;
-
-          const axisX = gp.axes[1] ?? 0;
-          const prevX = lastAxes.current[1] ?? 0;
-          if (Math.abs(axisX) > deadzone && Math.abs(prevX) <= deadzone) {
-            dispatchKey(axisX > 0 ? 'ArrowRight' : 'ArrowLeft');
-          }
-          lastAxes.current[1] = axisX;
-        }
+      if (DEBUG_GAMEPAD) {
+        console.log(`[gamepad->key] ${key}${shiftKey ? ' (shift)' : ''}`);
       }
-    } catch (e) {
-      console.error(e);
-    }
-    requestRef.current = requestAnimationFrame(update);
-  }, []);
-
-  useEffect(() => {
-    const handleConnect = () => setConnected(true);
-    const handleDisconnect = () => {
-       const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-       const hasGamepads = Array.from(gamepads).some(gp => gp !== null);
-       setConnected(hasGamepads);
     };
 
-    window.addEventListener("gamepadconnected", handleConnect);
-    window.addEventListener("gamepaddisconnected", handleDisconnect);
+    const setConnectedState = (value: boolean) => {
+      setConnected(value);
+      if (lastConnectedRef.current !== value) {
+        lastConnectedRef.current = value;
+        if (DEBUG_GAMEPAD) console.log(`[gamepad] ${value ? 'detected' : 'not detected'}`);
+      }
+    };
 
-    const initialGamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-    if (Array.from(initialGamepads).some(gp => gp !== null)) {
-        setConnected(true);
-    }
+    const onFrame = (frame: { axes: number[]; buttons: number[] }) => {
+      setConnectedState(true);
+
+      const btnPressedNow = (i: number) => (frame.buttons[i] ?? 0) > 0.5;
+      const justPressed = (i: number) => btnPressedNow(i) && !lastButtonsRef.current[i];
+
+      // Common Xbox mapping
+      if (justPressed(0)) emitKey('Enter');
+      if (justPressed(1)) emitKey('Escape');
+      if (justPressed(4) || justPressed(6)) emitKey('Tab', true);
+      if (justPressed(5) || justPressed(7)) emitKey('Tab');
+
+      if (justPressed(12)) emitKey('ArrowUp');
+      if (justPressed(13)) emitKey('ArrowDown');
+      if (justPressed(14)) emitKey('ArrowLeft');
+      if (justPressed(15)) emitKey('ArrowRight');
+
+      const axisX = frame.axes[0] ?? 0;
+      const axisY = frame.axes[1] ?? 0;
+      const prevX = lastAxesRef.current[0] ?? 0;
+      const prevY = lastAxesRef.current[1] ?? 0;
+      const deadzone = 0.5;
+
+      if (Math.abs(axisY) > deadzone && Math.abs(prevY) <= deadzone) {
+        emitKey(axisY < 0 ? 'ArrowUp' : 'ArrowDown');
+      }
+      if (Math.abs(axisX) > deadzone && Math.abs(prevX) <= deadzone) {
+        emitKey(axisX > 0 ? 'ArrowRight' : 'ArrowLeft');
+      }
+
+      const nextButtons: Record<number, boolean> = {};
+      frame.buttons.forEach((value, idx) => {
+        nextButtons[idx] = value > 0.5;
+      });
+      lastButtonsRef.current = nextButtons;
+      lastAxesRef.current[0] = axisX;
+      lastAxesRef.current[1] = axisY;
+    };
+
+    const onConnect = () => setConnectedState(true);
+    const onDisconnect = (count: number) => setConnectedState(count > 0);
+
+    manager.on('frame', onFrame);
+    manager.on('connect', onConnect);
+    manager.on('disconnect', onDisconnect);
+    manager.start();
 
     return () => {
-      window.removeEventListener("gamepadconnected", handleConnect);
-      window.removeEventListener("gamepaddisconnected", handleDisconnect);
+      manager.off('frame', onFrame);
+      manager.off('connect', onConnect);
+      manager.off('disconnect', onDisconnect);
+      manager.stop();
     };
   }, []);
-
-  useEffect(() => {
-    if (connected) {
-      requestRef.current = requestAnimationFrame(update);
-    } else if (requestRef.current) {
-      cancelAnimationFrame(requestRef.current);
-    }
-    return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    };
-  }, [connected, update]);
 
   return { connected };
 };

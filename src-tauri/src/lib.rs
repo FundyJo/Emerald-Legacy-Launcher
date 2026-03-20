@@ -1033,7 +1033,12 @@ pub fn run() {
     tauri::Builder::default()
         .manage(DownloadState { token: Arc::new(Mutex::new(None)) })
         .manage(GameState { child: Arc::new(Mutex::new(None)) })
-        .plugin(tauri_plugin_gamepad::init())
+        .setup(|app| {
+            if let Some(window) = app.get_webview_window("main") {
+                window.open_devtools();
+            }
+            Ok(())
+        })
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_drpc::init())
         .invoke_handler(tauri::generate_handler![setup_macos_runtime, launch_game, stop_game, check_game_installed, save_config, load_config, download_and_install, open_instance_folder, cancel_download, get_available_runners, get_external_palettes, import_theme, download_runner, delete_instance])

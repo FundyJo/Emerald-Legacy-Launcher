@@ -95,14 +95,16 @@ const SkinViewer = memo(function SkinViewer({ username, setUsername, playClickSo
       if (document.activeElement?.tagName === 'INPUT' && e.key !== 'ArrowDown' && e.key !== 'ArrowRight') return;
 
       if (e.key === 'ArrowRight') {
-        if (focusIndex === 3) onNavigateRight();
+        if (focusIndex === 0 || focusIndex === 3) onNavigateRight();
         else if (focusIndex === 1 || focusIndex === 2) setFocusIndex(prev => prev + 1);
       } else if (e.key === 'ArrowLeft') {
         if (focusIndex === 2 || focusIndex === 3) setFocusIndex(prev => prev - 1);
       } else if (e.key === 'ArrowDown') {
-        setFocusIndex(prev => (prev < 3 ? prev + 1 : prev));
+        // From the name field jump directly to the center action (Toggle Layers).
+        setFocusIndex(prev => (prev === 0 ? 2 : prev < 3 ? prev + 1 : prev));
       } else if (e.key === 'ArrowUp') {
-        setFocusIndex(prev => (prev > 0 ? prev - 1 : prev));
+        // From action buttons, going up returns to the name field.
+        setFocusIndex(prev => (prev > 0 ? 0 : prev));
       } else if (e.key === 'Enter') {
         if (focusIndex === 0) {
           (containerRef.current?.querySelector('input') as HTMLElement)?.focus();
@@ -145,7 +147,12 @@ const SkinViewer = memo(function SkinViewer({ username, setUsername, playClickSo
           style={{ width: `${Math.max(username.length, 3) + 2}ch` }}
           onChange={(e) => setUsername(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === 'ArrowDown') {
+            if (e.key === 'Enter' || e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+              if (e.key === 'ArrowDown') {
+                setFocusIndex(2);
+              } else if (e.key === 'ArrowRight') {
+                onNavigateRight();
+              }
               e.currentTarget.blur();
               e.stopPropagation();
             }
