@@ -18,9 +18,14 @@ export default function SkinViewer({ username, setUsername, playClickSound, skin
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const viewerRef = useRef<Skinview3D | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [focusIndex, setFocusIndex] = useState(0); // 0: input, 1: change, 2: layers, 3: reset
+  const [focusIndex, setFocusIndex] = useState(0);
 
   const [showLayers, setShowLayers] = useLocalStorage('lce-show-layers', true);
+  const showLayersRef = useRef(showLayers);
+
+  useEffect(() => {
+    showLayersRef.current = showLayers;
+  }, [showLayers]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -29,7 +34,6 @@ export default function SkinViewer({ username, setUsername, playClickSound, skin
       canvas: canvasRef.current,
       width: 220,
       height: 380,
-      skin: skinUrl,
     });
 
     viewerRef.current.animation = new IdleAnimation();
@@ -53,12 +57,33 @@ export default function SkinViewer({ username, setUsername, playClickSound, skin
         const skin = viewerRef.current?.playerObject.skin;
         if (skin) {
           [skin.body, skin.rightArm, skin.leftArm, skin.rightLeg, skin.leftLeg, skin.head].forEach(part => {
-            if (part && part.outerLayer) part.outerLayer.visible = showLayers;
+            if (part && part.outerLayer) part.outerLayer.visible = showLayersRef.current;
           });
         }
-      });
+      }).catch(console.error);
     }
-  }, [skinUrl, showLayers]);
+  }, [skinUrl]);
+
+  useEffect(() => {
+    if (viewerRef.current) {
+      const skin = viewerRef.current.playerObject?.skin;
+      if (skin) {
+        [skin.body, skin.rightArm, skin.leftArm, skin.rightLeg, skin.leftLeg, skin.head].forEach(part => {
+          if (part && part.outerLayer) part.outerLayer.visible = showLayers;
+        });
+      }
+    }
+  }, [showLayers]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (viewerRef.current && viewerRef.current.animation) {
+        viewerRef.current.animation.paused = document.hidden;
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   useEffect(() => {
     if (!isFocusedSection) {
@@ -112,7 +137,7 @@ export default function SkinViewer({ username, setUsername, playClickSound, skin
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3 }}
-      className="absolute left-16 top-[42%] -translate-y-1/2 flex flex-col items-center gap-1 outline-none"
+      className="absolute left-16 top-[42%] -translate-y-1/2 flex flex-col items-center gap-1 outline-none z-10"
     >
       <div className={`bg-black/20 flex justify-center items-center mb-2 px-2 py-1 rounded-sm border-2 transition-colors ${isFocusedSection && focusIndex === 0 ? 'border-[#FFFF55]' : 'border-transparent'}`} data-focus="0" tabIndex={0}>
         <input

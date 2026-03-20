@@ -12,7 +12,7 @@ interface Particle {
   rotation: number;
 }
 
-export const ClickParticles: React.FC = () => {
+export const ClickParticles: React.FC = React.memo(() => {
   const [bursts, setBursts] = useState<Particle[]>([]);
 
   useEffect(() => {
@@ -64,4 +64,4 @@ export const ClickParticles: React.FC = () => {
       ))}
     </div>
   );
-};
+});

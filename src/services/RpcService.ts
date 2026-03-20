@@ -8,10 +8,16 @@ class RPC {
 
   public async StartRPC() {
     if (this.initialized) return;
+    if (sessionStorage.getItem('lce_rpc_started') === 'true') {
+      this.initialized = true;
+      return;
+    }
+
     if (this.initializationPromise) return this.initializationPromise;
     this.initializationPromise = (async () => {
       try {
         await start("1482504445152460871");
+        sessionStorage.setItem('lce_rpc_started', 'true');
         this.initialized = true;
       } catch (e) {
         console.error("Failed to start RPC:", e);

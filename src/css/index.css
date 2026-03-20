@@ -60,3 +60,20 @@ body {
   animation: sga-burst 0.8s ease-out forwards;
   filter: drop-shadow(0 0 8px rgba(180, 100, 255, 0.9));
 }
+
+::-webkit-scrollbar {
+  width: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: url('/images/backgroundframe.png') center;
+  background-size: 100% auto;
+  image-rendering: pixelated;
+}
+
+::-webkit-scrollbar-thumb {
+  background: url('/images/SliderHandlerBackground.png') no-repeat center;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  cursor: pointer;
+}

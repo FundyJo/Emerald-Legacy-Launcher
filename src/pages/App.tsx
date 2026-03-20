@@ -207,7 +207,6 @@ function AppContent() {
     setTimeout(() => setLogoAnimDone(true), 3400);
     TauriService.loadConfig().then((config) => {
       if (config.username) setUsername(config.username);
-      if (config.skinBase64) setSkinUrl(config.skinBase64);
       if (config.themeStyleId) setTheme(config.themeStyleId);
       if (config.linuxRunner) setLinuxRunner(config.linuxRunner);
       if (config.appleSiliconPerformanceBoost !== undefined)
