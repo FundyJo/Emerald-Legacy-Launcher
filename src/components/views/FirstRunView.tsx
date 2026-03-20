@@ -1,6 +1,7 @@
 import React from 'react';
 import { TauriService } from '../../services/tauri';
 import { Runner } from '../../types';
+import { useFocusable } from '../../hooks/useFocusable';
 
 interface FirstRunViewProps {
   username: string;
@@ -25,6 +26,24 @@ export const FirstRunView: React.FC<FirstRunViewProps> = ({
   playSfx,
   ensureAudio,
 }) => {
+  const usernameInput = useFocusable('firstrun-username', 'main', 0);
+  const startBtn = useFocusable(
+    'firstrun-start',
+    'main',
+    1,
+    () => {
+      ensureAudio();
+      playSfx('click.wav');
+      TauriService.saveConfig({
+        username,
+        linuxRunner: isLinux ? selectedRunner : undefined,
+      });
+      setIsFirstRun(false);
+      setTimeout(playRandomMusic, 500);
+    },
+    [username, isLinux, selectedRunner, availableRunners]
+  );
+
   return (
     <div
       className="h-screen flex flex-col items-center justify-center bg-black text-white p-12 select-none"
@@ -34,13 +53,15 @@ export const FirstRunView: React.FC<FirstRunViewProps> = ({
       <div className="bg-[#2a2a2a] p-10 border-4 border-black w-full max-w-2xl text-center shadow-[inset_4px_4px_#555,inset_-4px_-4px_#111]">
         <h2 className="text-4xl text-emerald-400 mb-4">Welcome to Emerald Legacy!</h2>
         <input
+          ref={usernameInput.ref as React.RefObject<HTMLInputElement>}
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full bg-black border-4 border-emerald-900 p-4 text-3xl text-center mb-8 outline-none"
+          className={`w-full bg-black border-4 border-emerald-900 p-4 text-3xl text-center mb-8 outline-none ${usernameInput.className}`}
           placeholder="Username..."
         />
         <button
+          ref={startBtn.ref as React.RefObject<HTMLButtonElement>}
           onClick={() => {
             ensureAudio();
             playSfx('click.wav');
@@ -52,7 +73,7 @@ export const FirstRunView: React.FC<FirstRunViewProps> = ({
             setTimeout(playRandomMusic, 500);
           }}
           disabled={!username.trim() || (isLinux && availableRunners.length === 0)}
-          className="legacy-btn py-4 px-12 text-3xl w-full"
+          className={`legacy-btn py-4 px-12 text-3xl w-full ${startBtn.className}`}
         >
           Start Setup
         </button>

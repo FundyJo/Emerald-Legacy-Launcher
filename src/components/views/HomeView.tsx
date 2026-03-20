@@ -1,4 +1,5 @@
 import React from 'react';
+import { useFocusable } from '../../hooks/useFocusable';
 
 interface HomeViewProps {
   username: string;
@@ -25,6 +26,33 @@ export const HomeView: React.FC<HomeViewProps> = ({
 }) => {
   const hasInstalledInstance = installedStatus.vanilla_tu19 || installedStatus.vanilla_tu24;
 
+  const instanceSelect = useFocusable(
+    'home-instance-select',
+    'main',
+    0,
+    undefined,
+    [hasInstalledInstance]
+  );
+
+  const playBtn = useFocusable(
+    'home-play-btn',
+    'main',
+    1,
+    fadeAndLaunch,
+    [hasInstalledInstance, isRunning, installingInstance]
+  );
+
+  const goToVersionsBtn = useFocusable(
+    'home-go-versions',
+    'main',
+    0,
+    () => {
+      playSfx('click.wav');
+      setActiveTab("versions");
+    },
+    [hasInstalledInstance]
+  );
+
   return (
     <div className="flex flex-col items-center text-center animate-in fade-in">
       <div className="relative mb-12 flex flex-col items-center">
@@ -37,12 +65,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {hasInstalledInstance ? (
           <>
             <select
+              ref={instanceSelect.ref as React.RefObject<HTMLSelectElement>}
               value={selectedInstance}
               onChange={(e) => {
                 playSfx('click.wav');
                 setSelectedInstance(e.target.value);
               }}
-              className="w-full legacy-select p-3 text-2xl outline-none"
+              className={`w-full legacy-select p-3 text-2xl outline-none ${instanceSelect.className}`}
             >
               {installedStatus.vanilla_tu19 && (
                 <option value="vanilla_tu19">Vanilla Nightly (TU19)</option>
@@ -52,9 +81,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
               )}
             </select>
             <button
+              ref={playBtn.ref as React.RefObject<HTMLButtonElement>}
               onClick={fadeAndLaunch}
               disabled={isRunning || !!installingInstance}
-              className="legacy-btn py-4 text-6xl w-full"
+              className={`legacy-btn py-4 text-6xl w-full ${playBtn.className}`}
             >
               {installingInstance ? "WAITING..." : isRunning ? "RUNNING..." : "PLAY"}
             </button>
@@ -63,11 +93,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="text-center">
             <p className="text-2xl text-red-400 mb-6 font-bold uppercase">Game not installed</p>
             <button
+              ref={goToVersionsBtn.ref as React.RefObject<HTMLButtonElement>}
               onClick={() => {
                 playSfx('click.wav');
                 setActiveTab("versions");
               }}
-              className="legacy-btn py-4 px-8 text-3xl w-full"
+              className={`legacy-btn py-4 px-8 text-3xl w-full ${goToVersionsBtn.className}`}
             >
               Go to Versions
             </button>

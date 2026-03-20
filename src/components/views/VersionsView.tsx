@@ -1,6 +1,7 @@
 import React from 'react';
 import { TauriService } from '../../services/tauri';
 import { ReinstallModalData } from '../../types';
+import { useFocusable } from '../../hooks/useFocusable';
 
 interface VersionsViewProps {
   installedStatus: Record<string, boolean>;
@@ -32,6 +33,45 @@ export const VersionsView: React.FC<VersionsViewProps> = ({
     }
   ];
 
+  // Create focusable refs for each version's buttons
+  const versionButtons: Record<string, any> = {};
+
+  versions.forEach((v, index) => {
+    if (installedStatus[v.id]) {
+      versionButtons[`${v.id}-folder`] = useFocusable(
+        `version-${v.id}-folder`,
+        'main',
+        index * 2,
+        () => {
+          playSfx('pop.wav');
+          TauriService.openInstanceFolder(v.id);
+        },
+        [installedStatus[v.id]]
+      );
+      versionButtons[`${v.id}-reinstall`] = useFocusable(
+        `version-${v.id}-reinstall`,
+        'main',
+        index * 2 + 1,
+        () => {
+          playSfx('click.wav');
+          setReinstallModal({ id: v.id, url: v.url });
+        },
+        [installedStatus[v.id], installingInstance]
+      );
+    } else {
+      versionButtons[`${v.id}-install`] = useFocusable(
+        `version-${v.id}-install`,
+        'main',
+        index * 2,
+        () => {
+          playSfx('click.wav');
+          executeInstall(v.id, v.url);
+        },
+        [installedStatus[v.id], installingInstance]
+      );
+    }
+  });
+
   return (
     <div className="w-full max-w-3xl bg-black/80 p-12 border-4 border-black h-full overflow-y-auto no-scrollbar animate-in fade-in">
       <h2 className="text-5xl mb-8 border-b-4 border-white/20 pb-4">Instances</h2>
@@ -46,33 +86,36 @@ export const VersionsView: React.FC<VersionsViewProps> = ({
               {installedStatus[v.id] ? (
                 <>
                   <button
+                    ref={versionButtons[`${v.id}-folder`]?.ref as React.RefObject<HTMLButtonElement>}
                     onClick={() => {
                       playSfx('pop.wav');
                       TauriService.openInstanceFolder(v.id);
                     }}
-                    className="legacy-btn px-4 py-2 text-xl"
+                    className={`legacy-btn px-4 py-2 text-xl ${versionButtons[`${v.id}-folder`]?.className || ''}`}
                   >
                     Folder
                   </button>
                   <button
+                    ref={versionButtons[`${v.id}-reinstall`]?.ref as React.RefObject<HTMLButtonElement>}
                     onClick={() => {
                       playSfx('click.wav');
                       setReinstallModal({ id: v.id, url: v.url });
                     }}
                     disabled={!!installingInstance}
-                    className="legacy-btn px-4 py-2 text-xl reinstall-btn"
+                    className={`legacy-btn px-4 py-2 text-xl reinstall-btn ${versionButtons[`${v.id}-reinstall`]?.className || ''}`}
                   >
                     Reinstall
                   </button>
                 </>
               ) : (
                 <button
+                  ref={versionButtons[`${v.id}-install`]?.ref as React.RefObject<HTMLButtonElement>}
                   onClick={() => {
                     playSfx('click.wav');
                     executeInstall(v.id, v.url);
                   }}
                   disabled={!!installingInstance}
-                  className="legacy-btn px-6 py-2 text-xl"
+                  className={`legacy-btn px-6 py-2 text-xl ${versionButtons[`${v.id}-install`]?.className || ''}`}
                 >
                   INSTALL
                 </button>

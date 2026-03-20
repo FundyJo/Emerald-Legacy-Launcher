@@ -1,6 +1,7 @@
 import React from 'react';
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { TauriService } from '../../services/tauri';
+import { useFocusable } from '../../hooks/useFocusable';
 
 interface SidebarProps {
   activeTab: string;
@@ -19,6 +20,58 @@ export const Sidebar: React.FC<SidebarProps> = ({
   installingInstance,
   downloadProgress,
 }) => {
+  const homeBtn = useFocusable(
+    'sidebar-home',
+    'sidebar',
+    0,
+    () => {
+      playSfx('click.wav');
+      setActiveTab("home");
+      updateAllStatus();
+    }
+  );
+
+  const versionsBtn = useFocusable(
+    'sidebar-versions',
+    'sidebar',
+    1,
+    () => {
+      playSfx('click.wav');
+      setActiveTab("versions");
+      updateAllStatus();
+    }
+  );
+
+  const settingsBtn = useFocusable(
+    'sidebar-settings',
+    'sidebar',
+    2,
+    () => {
+      playSfx('click.wav');
+      setActiveTab("settings");
+    }
+  );
+
+  const cancelBtn = useFocusable(
+    'sidebar-cancel',
+    'sidebar',
+    3,
+    () => {
+      playSfx('back.ogg');
+      TauriService.cancelDownload();
+    }
+  );
+
+  const devLink = useFocusable(
+    'sidebar-dev',
+    'sidebar',
+    4,
+    () => {
+      playSfx('click.wav');
+      openUrl("https://github.com/KayJannOnGit");
+    }
+  );
+
   return (
     <aside className="w-64 bg-[#2a2a2a] border-r-4 border-black p-6 flex flex-col gap-2 z-20 shadow-[inset_-4px_0_#555]">
       <div className="mb-10 px-2">
@@ -26,31 +79,34 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
       <nav className="flex flex-col gap-3">
         <button
+          ref={homeBtn.ref as React.RefObject<HTMLButtonElement>}
           onClick={() => {
             playSfx('click.wav');
             setActiveTab("home");
             updateAllStatus();
           }}
-          className={`p-4 legacy-btn justify-start ${activeTab === "home" ? "active-tab" : ""}`}
+          className={`p-4 legacy-btn justify-start ${activeTab === "home" ? "active-tab" : ""} ${homeBtn.className}`}
         >
           HOME
         </button>
         <button
+          ref={versionsBtn.ref as React.RefObject<HTMLButtonElement>}
           onClick={() => {
             playSfx('click.wav');
             setActiveTab("versions");
             updateAllStatus();
           }}
-          className={`p-4 legacy-btn justify-start ${activeTab === "versions" ? "active-tab" : ""}`}
+          className={`p-4 legacy-btn justify-start ${activeTab === "versions" ? "active-tab" : ""} ${versionsBtn.className}`}
         >
           VERSIONS
         </button>
         <button
+          ref={settingsBtn.ref as React.RefObject<HTMLButtonElement>}
           onClick={() => {
             playSfx('click.wav');
             setActiveTab("settings");
           }}
-          className={`p-4 legacy-btn justify-start ${activeTab === "settings" ? "active-tab" : ""}`}
+          className={`p-4 legacy-btn justify-start ${activeTab === "settings" ? "active-tab" : ""} ${settingsBtn.className}`}
         >
           SETTINGS
         </button>
@@ -61,11 +117,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex justify-between mb-3 text-slate-300 font-bold text-[10px] uppercase tracking-widest px-1">
             <span>Installing</span>
             <button
+              ref={cancelBtn.ref as React.RefObject<HTMLButtonElement>}
               onClick={() => {
                 playSfx('back.ogg');
                 TauriService.cancelDownload();
               }}
-              className="text-red-500 hover:underline"
+              className={`text-red-500 hover:underline ${cancelBtn.className}`}
             >
               CANCEL
             </button>
@@ -81,11 +138,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <div
+        ref={devLink.ref as React.RefObject<HTMLDivElement>}
         onClick={() => {
           playSfx('click.wav');
           openUrl("https://github.com/KayJannOnGit");
         }}
-        className={`${installingInstance ? "pt-6" : "mt-auto pt-6"} flex flex-col items-center border-t-4 border-black/30 cursor-pointer group`}
+        className={`${installingInstance ? "pt-6" : "mt-auto pt-6"} flex flex-col items-center border-t-4 border-black/30 cursor-pointer group ${devLink.className}`}
       >
         <span className="text-slate-500 text-[10px] uppercase">Developed by</span>
         <span className="text-emerald-500 text-sm font-bold group-hover:underline">KayJann</span>

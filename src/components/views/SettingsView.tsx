@@ -3,6 +3,7 @@ import { Icons } from '../Icons';
 import { TauriService } from '../../services/tauri';
 import { Runner } from '../../types';
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { useFocusable } from '../../hooks/useFocusable';
 
 interface SettingsViewProps {
   username: string;
@@ -35,6 +36,50 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   setIsMuted,
   playSfx,
 }) => {
+  const usernameInput = useFocusable('settings-username', 'main', 0);
+  const saveBtn = useFocusable(
+    'settings-save',
+    'main',
+    1,
+    () => {
+      playSfx('wood click.wav');
+      TauriService.saveConfig({
+        username,
+        linuxRunner: selectedRunner || undefined,
+      });
+    }
+  );
+  const runnerSelect = useFocusable('settings-runner', 'main', 2, undefined, [isLinux]);
+  const musicSlider = useFocusable('settings-music-vol', 'main', 3);
+  const sfxSlider = useFocusable('settings-sfx-vol', 'main', 4);
+  const muteBtn = useFocusable(
+    'settings-mute',
+    'main',
+    5,
+    () => {
+      setIsMuted(!isMuted);
+      playSfx('pop.wav');
+    }
+  );
+  const discordBtn = useFocusable(
+    'settings-discord',
+    'main',
+    6,
+    () => openUrl("https://discord.gg/nzbxB8Hxjh")
+  );
+  const githubBtn = useFocusable(
+    'settings-github',
+    'main',
+    7,
+    () => openUrl("https://github.com/KayJannOnGit")
+  );
+  const redditBtn = useFocusable(
+    'settings-reddit',
+    'main',
+    8,
+    () => openUrl("https://reddit.com/user/KayJann")
+  );
+
   return (
     <div className="w-full max-w-3xl bg-black/80 p-12 border-4 border-black h-full overflow-y-auto no-scrollbar animate-in fade-in">
       <h2 className="text-5xl mb-8 border-b-4 border-white/20 pb-4">Settings</h2>
@@ -43,12 +88,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <label className="text-xl text-slate-400 italic">In-game Username</label>
           <div className="flex gap-4">
             <input
+              ref={usernameInput.ref as React.RefObject<HTMLInputElement>}
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="flex-1 bg-black border-4 border-slate-700 p-4 text-3xl outline-none focus:border-emerald-500"
+              className={`flex-1 bg-black border-4 border-slate-700 p-4 text-3xl outline-none focus:border-emerald-500 ${usernameInput.className}`}
             />
             <button
+              ref={saveBtn.ref as React.RefObject<HTMLButtonElement>}
               onClick={() => {
                 playSfx('wood click.wav');
                 TauriService.saveConfig({
@@ -56,7 +103,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   linuxRunner: selectedRunner || undefined,
                 });
               }}
-              className="legacy-btn px-8 text-2xl relative"
+              className={`legacy-btn px-8 text-2xl relative ${saveBtn.className}`}
             >
               Save
             </button>
@@ -70,12 +117,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </label>
             <div className="flex flex-col gap-2">
               <select
+                ref={runnerSelect.ref as React.RefObject<HTMLSelectElement>}
                 value={selectedRunner}
                 onChange={(e) => {
                   playSfx('click.wav');
                   setSelectedRunner(e.target.value);
                 }}
-                className="w-full legacy-select p-4 text-2xl outline-none focus:border-emerald-500"
+                className={`w-full legacy-select p-4 text-2xl outline-none focus:border-emerald-500 ${runnerSelect.className}`}
               >
                 <option value="" disabled>Select a runner...</option>
                 {availableRunners.map((r) => (
@@ -103,13 +151,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 Music {Math.round(musicVol * 100)}%
               </span>
               <input
+                ref={musicSlider.ref as React.RefObject<HTMLInputElement>}
                 type="range"
                 min="0"
                 max="1"
                 step="0.01"
                 value={musicVol}
                 onChange={(e) => setMusicVol(parseFloat(e.target.value))}
-                className="mc-range"
+                className={`mc-range ${musicSlider.className}`}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -117,22 +166,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 SFX {Math.round(sfxVol * 100)}%
               </span>
               <input
+                ref={sfxSlider.ref as React.RefObject<HTMLInputElement>}
                 type="range"
                 min="0"
                 max="1"
                 step="0.01"
                 value={sfxVol}
                 onChange={(e) => setSfxVol(parseFloat(e.target.value))}
-                className="mc-range"
+                className={`mc-range ${sfxSlider.className}`}
               />
             </div>
           </div>
           <button
+            ref={muteBtn.ref as React.RefObject<HTMLButtonElement>}
             onClick={() => {
               setIsMuted(!isMuted);
               playSfx('pop.wav');
             }}
-            className="legacy-btn mt-4 py-2"
+            className={`legacy-btn mt-4 py-2 ${muteBtn.className}`}
           >
             {isMuted ? "UNMUTE ALL" : "MUTE ALL"}
           </button>
@@ -149,22 +200,25 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <h3 className="text-sm text-slate-500 mb-4 uppercase tracking-widest">Social Links</h3>
           <div className="flex gap-6">
             <button
+              ref={discordBtn.ref as React.RefObject<HTMLButtonElement>}
               onClick={() => openUrl("https://discord.gg/nzbxB8Hxjh")}
-              className="social-btn btn-discord"
+              className={`social-btn btn-discord ${discordBtn.className}`}
               title="Discord"
             >
               <Icons.Discord />
             </button>
             <button
+              ref={githubBtn.ref as React.RefObject<HTMLButtonElement>}
               onClick={() => openUrl("https://github.com/KayJannOnGit")}
-              className="social-btn btn-github"
+              className={`social-btn btn-github ${githubBtn.className}`}
               title="GitHub"
             >
               <Icons.Github />
             </button>
             <button
+              ref={redditBtn.ref as React.RefObject<HTMLButtonElement>}
               onClick={() => openUrl("https://reddit.com/user/KayJann")}
-              className="social-btn btn-reddit"
+              className={`social-btn btn-reddit ${redditBtn.className}`}
               title="Reddit"
             >
               <Icons.Reddit />
