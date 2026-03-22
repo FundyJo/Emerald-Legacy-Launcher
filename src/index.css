@@ -262,3 +262,48 @@ input[type="range"].controller-focus {
 .modal-content.controller-focus {
   box-shadow: inset 4px 4px #555, inset -4px -4px #111, 0 0 0 6px #55ff55, 0 0 30px rgba(85, 255, 85, 0.6) !important;
 }
+
+/* Skin Viewer Styles */
+.mc-sq-btn {
+  background-image: url('/images/Button_Square.png');
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+}
+
+.mc-sq-btn:hover,
+.mc-sq-btn:focus {
+  background-image: url('/images/Button_Square_Highlighted.png');
+}
+
+/* Animation utilities */
+.animate-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* FIX: Prevent all image dragging globally */
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Allow pointer events on interactive containers */
+button img,
+a img {
+  pointer-events: none;
+}
