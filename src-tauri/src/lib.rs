@@ -51,6 +51,14 @@ pub struct AppConfig {
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MinecraftProfilePayload {
+    pub id: String,
+    pub name: String,
+    pub skin_url: String,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct ThemePalette {
     pub id: String,
     pub name: String,
@@ -149,6 +157,74 @@ fn get_config_path(app: &AppHandle) -> PathBuf {
 }
 
 #[tauri::command]
+async fn login_with_microsoft(app: AppHandle) -> Result<MinecraftProfilePayload, String> {
+    let _ = app;
+
+    let script_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("scripts")
+        .join("minecraft-auth-login.cjs");
+
+    if !script_path.exists() {
+        return Err(format!(
+            "Auth-Script nicht gefunden: {}",
+            script_path.to_string_lossy()
+        ));
+    }
+
+    let mut cmd = Command::new("node");
+    cmd.arg(&script_path);
+
+    if let Ok(client_id) = std::env::var("EMERALD_MS_CLIENT_ID") {
+        cmd.env("EMERALD_MS_CLIENT_ID", client_id);
+    }
+    if let Ok(app_secret) = std::env::var("EMERALD_MS_APP_SECRET") {
+        cmd.env("EMERALD_MS_APP_SECRET", app_secret);
+    }
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("minecraft-auth konnte nicht gestartet werden: {}", e))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        let msg = if stderr.is_empty() {
+            "Microsoft-Login fehlgeschlagen.".to_string()
+        } else {
+            stderr
+        };
+        return Err(msg);
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    if stdout.is_empty() {
+        return Err("minecraft-auth lieferte keine Profildaten zuruck.".to_string());
+    }
+
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct NodeProfile {
+        id: String,
+        name: String,
+        skin_url: Option<String>,
+        skin_url_alt: Option<String>,
+    }
+
+    let parsed: Result<NodeProfile, _> = serde_json::from_str(&stdout);
+    if let Ok(profile) = parsed {
+        return Ok(MinecraftProfilePayload {
+            id: profile.id,
+            name: profile.name,
+            skin_url: profile.skin_url.or(profile.skin_url_alt).unwrap_or_default(),
+        });
+    }
+
+    let fallback: MinecraftProfilePayload = serde_json::from_str(&stdout)
+        .map_err(|e| format!("Ungultige minecraft-auth Antwort: {}. Payload: {}", e, stdout))?;
+    Ok(fallback)
+}
+
+#[tauri::command]
 fn save_config(app: AppHandle, config: AppConfig) {
     let path = get_config_path(&app);
     let _ = fs::create_dir_all(path.parent().unwrap());
@@ -225,8 +301,11 @@ fn import_theme(app: AppHandle) -> Result<String, String> {
 }
 
 #[tauri::command]
-fn get_available_runners(app: AppHandle) -> Vec<Runner> {
+fn get_available_runners(_app: AppHandle) -> Vec<Runner> {
+    #[cfg(target_os = "linux")]
     let mut runners = Vec::new();
+    #[cfg(not(target_os = "linux"))]
+    let runners: Vec<Runner> = Vec::new();
 
     #[cfg(target_os = "linux")]
     {
@@ -279,7 +358,7 @@ fn get_available_runners(app: AppHandle) -> Vec<Runner> {
             }
         }
 
-        let runners_dir = get_app_dir(&app).join("runners");
+        let runners_dir = get_app_dir(&_app).join("runners");
         let _ = fs::create_dir_all(&runners_dir);
         if let Ok(entries) = fs::read_dir(&runners_dir) {
             for entry in entries.flatten() {
@@ -941,7 +1020,7 @@ async fn launch_game(app: AppHandle, state: State<'_, GameState>, instanceId: St
                 .stdout(Stdio::null())
                 .stderr(Stdio::null());
 
-            let mut child = cmd.spawn().map_err(|e| e.to_string())?;
+            let child = cmd.spawn().map_err(|e| e.to_string())?;
             {
                 let mut lock = state.child.lock().await;
                 *lock = Some(child);
@@ -975,7 +1054,7 @@ async fn launch_game(app: AppHandle, state: State<'_, GameState>, instanceId: St
             #[cfg(unix)]
             cmd.process_group(0);
             cmd.current_dir(&instance_dir);
-            let mut child = cmd.spawn().map_err(|e| e.to_string())?;
+            let child = cmd.spawn().map_err(|e| e.to_string())?;
             {
                 let mut lock = state.child.lock().await;
                 *lock = Some(child);
@@ -1019,10 +1098,10 @@ fn kill_process_tree(app: &AppHandle, instance_id: &str) { // neo: dont question
 }
 
 #[tauri::command]
-async fn stop_game(app: AppHandle, instance_id: String, state: State<'_, GameState>) -> Result<(), String> {
+async fn stop_game(_app: AppHandle, _instance_id: String, state: State<'_, GameState>) -> Result<(), String> {
     let mut lock = state.child.lock().await;
     if let Some(mut child) = lock.take() {
-        #[cfg(unix)] kill_process_tree(&app, &instance_id);
+        #[cfg(unix)] kill_process_tree(&_app, &_instance_id);
         let _ = child.kill().await;
     }
     Ok(())
@@ -1041,7 +1120,7 @@ pub fn run() {
         })
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_drpc::init())
-        .invoke_handler(tauri::generate_handler![setup_macos_runtime, launch_game, stop_game, check_game_installed, save_config, load_config, download_and_install, open_instance_folder, cancel_download, get_available_runners, get_external_palettes, import_theme, download_runner, delete_instance])
+        .invoke_handler(tauri::generate_handler![setup_macos_runtime, launch_game, stop_game, check_game_installed, save_config, load_config, download_and_install, open_instance_folder, cancel_download, get_available_runners, get_external_palettes, import_theme, download_runner, delete_instance, login_with_microsoft])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
