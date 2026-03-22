@@ -18,6 +18,8 @@ interface SettingsViewProps {
   setSfxVol: (vol: number) => void;
   isMuted: boolean;
   setIsMuted: (muted: boolean) => void;
+  keepLauncherOpen: boolean;
+  setKeepLauncherOpen: (keep: boolean) => void;
   playSfx: (name: string, multiplier?: number) => void;
 }
 
@@ -34,6 +36,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   setSfxVol,
   isMuted,
   setIsMuted,
+  keepLauncherOpen,
+  setKeepLauncherOpen,
   playSfx,
 }) => {
   const usernameInput = useFocusable('settings-username', 'main', 0);
@@ -187,6 +191,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           >
             {isMuted ? "UNMUTE ALL" : "MUTE ALL"}
           </button>
+        </div>
+
+        <div className="flex flex-col gap-4 bg-[#2a2a2a] p-6 border-4 border-black shadow-[inset_4px_4px_#555]">
+          <label className="text-xl flex items-center gap-4">
+            Launcher Options
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer text-lg">
+            <input
+              type="checkbox"
+              checked={keepLauncherOpen}
+              onChange={(e) => {
+                setKeepLauncherOpen(e.target.checked);
+                playSfx('click.wav');
+              }}
+              className="w-5 h-5 cursor-pointer"
+            />
+            <span>Keep Launcher Open After Game Launch</span>
+          </label>
         </div>
 
         <div className="about-section border-4 border-black bg-[#2a2a2a] p-6 shadow-[inset_4px_4px_#555]">

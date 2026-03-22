@@ -12,6 +12,9 @@ import { HomeView } from "./components/views/HomeView";
 import { VersionsView } from "./components/views/VersionsView";
 import { SettingsView } from "./components/views/SettingsView";
 import { FirstRunView } from "./components/views/FirstRunView";
+import { SkinsView } from "./components/views/SkinsView";
+import { SkinViewer } from "./components/common/SkinViewer";
+import { useSkinSync } from "./hooks/useSkinSync";
 import { ReinstallModal } from "./components/modals/ReinstallModal";
 import { Notification } from "./components/common/Notification";
 import "./index.css";
@@ -27,10 +30,11 @@ function AppContent() {
   const [selectedRunner, setSelectedRunner] = useState<string>("");
   const [isLinux, setIsLinux] = useState(false);
 
-  const { musicVol, setMusicVol, sfxVol, setSfxVol, isMuted, setIsMuted } = useSettings();
+  const { musicVol, setMusicVol, sfxVol, setSfxVol, isMuted, setIsMuted, keepLauncherOpen, setKeepLauncherOpen } = useSettings();
   const { musicRef, playRandomMusic, playSfx, ensureAudio } = useAudio(musicVol, sfxVol, isMuted);
   const { installedStatus, installingInstance, downloadProgress, executeInstall, updateAllStatus } = useGameInstances(playSfx, setMcNotif);
-  const { isRunning, fadeAndLaunch } = useLauncher(selectedInstance, musicRef, isMuted, musicVol, playRandomMusic, playSfx);
+  const { isRunning, fadeAndLaunch } = useLauncher(selectedInstance, musicRef, isMuted, musicVol, playRandomMusic, playSfx, keepLauncherOpen);
+  const { skinUrl, setSkinUrl } = useSkinSync();
 
   const {
     moveUp,
@@ -45,7 +49,7 @@ function AppContent() {
 
   // Handle tab switching with controller
   const handleTabLeft = () => {
-    const tabs = ["home", "versions", "settings"];
+    const tabs = ["home", "skins", "versions", "settings"];
     const currentIndex = tabs.indexOf(activeTab);
     const newIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
     setActiveTab(tabs[newIndex]);
@@ -54,7 +58,7 @@ function AppContent() {
   };
 
   const handleTabRight = () => {
-    const tabs = ["home", "versions", "settings"];
+    const tabs = ["home", "skins", "versions", "settings"];
     const currentIndex = tabs.indexOf(activeTab);
     const newIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
     setActiveTab(tabs[newIndex]);
@@ -164,6 +168,18 @@ function AppContent() {
       />
 
       <main className="flex-1 relative h-full">
+        {/* Skin Viewer - shown on home tab */}
+        {activeTab === "home" && (
+          <SkinViewer
+            username={username}
+            setUsername={setUsername}
+            skinUrl={skinUrl}
+            setSkinUrl={setSkinUrl}
+            setActiveTab={setActiveTab}
+            playSfx={playSfx}
+          />
+        )}
+
         <div className="h-full flex flex-col items-center justify-center p-12 relative z-10">
           {activeTab === "home" && (
             <HomeView
@@ -176,6 +192,15 @@ function AppContent() {
               fadeAndLaunch={fadeAndLaunch}
               playSfx={playSfx}
               setActiveTab={setActiveTab}
+            />
+          )}
+
+          {activeTab === "skins" && (
+            <SkinsView
+              skinUrl={skinUrl}
+              setSkinUrl={setSkinUrl}
+              setActiveTab={setActiveTab}
+              playSfx={playSfx}
             />
           )}
 
@@ -203,6 +228,8 @@ function AppContent() {
               setSfxVol={setSfxVol}
               isMuted={isMuted}
               setIsMuted={setIsMuted}
+              keepLauncherOpen={keepLauncherOpen}
+              setKeepLauncherOpen={setKeepLauncherOpen}
               playSfx={playSfx}
             />
           )}

@@ -42,10 +42,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
     }
   );
 
+  const skinsBtn = useFocusable(
+    'sidebar-skins',
+    'sidebar',
+    2,
+    () => {
+      playSfx('click.wav');
+      setActiveTab("skins");
+    }
+  );
+
   const settingsBtn = useFocusable(
     'sidebar-settings',
     'sidebar',
-    2,
+    3,
     () => {
       playSfx('click.wav');
       setActiveTab("settings");
@@ -55,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const cancelBtn = useFocusable(
     'sidebar-cancel',
     'sidebar',
-    3,
+    4,
     () => {
       playSfx('back.ogg');
       TauriService.cancelDownload();
@@ -65,7 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const devLink = useFocusable(
     'sidebar-dev',
     'sidebar',
-    4,
+    5,
     () => {
       playSfx('click.wav');
       openUrl("https://github.com/KayJannOnGit");
@@ -99,6 +109,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           className={`p-4 legacy-btn justify-start ${activeTab === "versions" ? "active-tab" : ""} ${versionsBtn.className}`}
         >
           VERSIONS
+        </button>
+        <button
+          ref={skinsBtn.ref as React.RefObject<HTMLButtonElement>}
+          onClick={() => {
+            playSfx('click.wav');
+            setActiveTab("skins");
+          }}
+          className={`p-4 legacy-btn justify-start ${activeTab === "skins" ? "active-tab" : ""} ${skinsBtn.className}`}
+        >
+          SKINS
         </button>
         <button
           ref={settingsBtn.ref as React.RefObject<HTMLButtonElement>}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { TauriService } from '../services/tauri';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 
 export const useLauncher = (
   selectedInstance: string,
@@ -7,7 +8,8 @@ export const useLauncher = (
   isMuted: boolean,
   musicVol: number,
   playRandomMusic: () => void,
-  playSfx: (name: string, multiplier?: number) => void
+  playSfx: (name: string, multiplier?: number) => void,
+  keepLauncherOpen: boolean
 ) => {
   const [isRunning, setIsRunning] = useState(false);
 
@@ -32,11 +34,17 @@ export const useLauncher = (
     setTimeout(async () => {
       try {
         await TauriService.launchGame(selectedInstance);
+
+        // FIX: Only hide launcher if keepLauncherOpen is false
+        if (!keepLauncherOpen) {
+          const window = getCurrentWindow();
+          await window.hide();
+        }
       } catch (e) {
         alert(`Failed to launch game: ${e}`);
       } finally {
         setIsRunning(false);
-        if (musicRef.current) {
+        if (musicRef.current && keepLauncherOpen) {
           musicRef.current.volume = isMuted ? 0 : musicVol;
           playRandomMusic();
         }
